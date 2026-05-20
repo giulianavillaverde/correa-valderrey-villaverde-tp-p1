@@ -13,7 +13,7 @@ public class Fondo {
 		this.x = x;
 		this.y = y;
 		this.escala = escala;
-		this.imagenFondo = Herramientas.cargarImagen("fondo.jpg");
+		this.imagenFondo = Herramientas.cargarImagen("juego/fondonuevo.png");
 		this.e = e;
 	}
 	
@@ -21,4 +21,4 @@ public class Fondo {
 		e.dibujarImagen(imagenFondo, this.x, this.y, 0, this.escala);
 	}
 	
-}
+} 

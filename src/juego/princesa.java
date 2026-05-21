@@ -4,65 +4,109 @@ import java.awt.Image;
 import entorno.Entorno;
 import entorno.Herramientas;
 
-public class princesa {
+public class Princesa {
 	
 	double x;
 	double y;
-	double velocidad;
+	double escala;
+	// variables para calcular el tamaño de la imagen
+	double tamArriba, tamAbajo, tamDerecha, tamIzquierda;
+	// variables para calcular las colisiones
+	double arriba, abajo, izquierda, derecha;
+	// variables para la caida y salto de la princesa
+	Boolean caida, salto;
+	int ciclos;
+	
 	Entorno e;
 	
-
 	Image imagenIzquierda;
 	Image imagenDerecha;
 	
 	// Variable lógica para saber hacia dónde mirar
 	boolean mirandoIzquierda;
 
-	public princesa(double x, double y, Entorno e) {
+	public Princesa(double x, double y, Entorno e) {
 		this.x = x;
 		this.y = y;
-		this.velocidad = 4.0;
 		this.e = e;
+		this.escala = 0.4; // Ajuste de tamaño
+		this.salto = false;
+		this.caida = true;
+		this.ciclos = 0;
+		this.imagenIzquierda = Herramientas.cargarImagen("juego/princesaIzq.gif");
+		this.imagenDerecha = Herramientas.cargarImagen("juego/princesaDer.gif");
 		
-		
-		this.imagenIzquierda = Herramientas.cargarImagen("juego/princesa.gif");
-		this.imagenDerecha = Herramientas.cargarImagen("juego/princesaderecha.gif");
-		
-		// Arranca mirando a la izquierda como el gif original
+		// Arranca mirando a la izquierda
 		this.mirandoIzquierda = true;
+		
+		//Calculo del tamaño de la imagen
+		this.tamAbajo = -this.imagenDerecha.getHeight(null) * this.escala / 2;
+		this.tamArriba = this.imagenDerecha.getHeight(null) * this.escala / 2;
+		this.tamDerecha = -this.imagenDerecha.getWidth(null) * this.escala / 2;
+		this.tamIzquierda = this.imagenDerecha.getWidth(null) * this.escala / 2;
+		//calculo de las colisiones, cada que una de estos esten en algun metodo es para actualizarlos
+		this.arriba = this.y + tamAbajo;
+		this.abajo = this.y + tamArriba;
+		this.derecha = this.x + tamDerecha;
+		this.izquierda = this.x + tamIzquierda;
 	}
 
 	public void dibujar() {
-		double escalaChica = 0.4; // Ajuste de tamaño solicitado
+		if (this.mirandoIzquierda && this.imagenIzquierda != null) {
+			
+			this.e.dibujarImagen(this.imagenIzquierda, this.x, this.y, 0, this.escala);
 		
-		
-		if (this.mirandoIzquierda) {
-			if (this.imagenIzquierda != null) {
-				
-				this.e.dibujarImagen(this.imagenIzquierda, this.x, this.y, 0, escalaChica);
-			}
-		} else {
-			if (this.imagenDerecha != null) {
-				
-				this.e.dibujarImagen(this.imagenDerecha, this.x, this.y, 0, escalaChica);
-			}
+		} else if (this.imagenDerecha != null) {		
+			
+			this.e.dibujarImagen(this.imagenDerecha, this.x, this.y, 0, this.escala);
 		}
 	}
-
-	public void moverse(int direccion) {
+	
+	public void moverse(double velocidad) {
 		
-		double proximaX = this.x + (direccion * this.velocidad);
-		if (proximaX > 30 && proximaX < 770) { //control de limites, 30 es el margen izquierdo y 770 es el margen derecho
+		double proximaX = this.x + velocidad;
+		if (proximaX > 50 && proximaX < 750) { //control de limites, margen izquierdo y margen derecho
 			this.x = proximaX;
 			
+			this.derecha = this.x + tamDerecha;
+			this.izquierda = this.x + tamIzquierda;	
 		}
 		
-		
-		if (direccion == -1) {
+		if (velocidad <= -1) {
 			this.mirandoIzquierda = true;
 		}
-		if (direccion == 1) {
+		if (velocidad >= 1) {
 			this.mirandoIzquierda = false;
+		}
+	}
+	
+	public void movVertical() {
+		int maxCiclos = 20;
+		//Terminacion del ciclo de salto
+		if(ciclos >= maxCiclos) {
+			ciclos = 0;
+			salto = false;
+		}
+		//Cuando se salta se empieza un ciclo para mover la princesa hacia arriba
+		if(salto && ciclos <= maxCiclos) {
+			this.y -= 8;
+			ciclos++;
+			
+			this.arriba = this.y + tamAbajo;
+			this.abajo = this.y + tamArriba;
+		}
+		
+		//Parte para hacer bajar a la princesa si esta en caida y no esta en salto
+		if(caida && !salto) {
+			this.y += 4;
+			this.arriba = this.y + tamAbajo;
+			this.abajo = this.y + tamArriba;
+		}
+	}
+	//Metodo que inicia el salto si la princesa no esta en caida o en un salto
+	public void iniciarSalto() {
+		if(!this.caida && !this.salto) {
+			this.salto = true;
 		}
 	}
 }

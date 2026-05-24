@@ -14,6 +14,8 @@ public class Enemigo {
     int limiteIzquierdo;
     int limiteDerecho;
     
+    double escala = 0.08;
+    
     public Enemigo(double x, double y, double velocidad, int anchoPantalla, int altoPantalla) {
         this.x = x;
         this.y = y;
@@ -23,11 +25,11 @@ public class Enemigo {
         this.imagen = Herramientas.cargarImagen("juego/enemigo.png");
         
         if (this.imagen != null) {
-            this.ancho = this.imagen.getWidth(null) * 0.15;
-            this.alto = this.imagen.getHeight(null) * 0.15;
+            this.ancho = this.imagen.getWidth(null) * this.escala;
+            this.alto = this.imagen.getHeight(null) * this.escala;
         } else {
-            this.ancho = 30;
-            this.alto = 30;
+            this.ancho = 20;
+            this.alto = 20;
         }
         
         this.limiteIzquierdo = -50;
@@ -39,9 +41,9 @@ public class Enemigo {
     public void dibujar(Entorno e) {
         if (activo) {
             if (imagen != null) {
-                e.dibujarImagen(imagen, x, y, 0, 0.08);
+                e.dibujarImagen(imagen, x, y, 0, this.escala);
             } else {
-                e.dibujarCirculo(x, y, 20, java.awt.Color.RED);
+                e.dibujarCirculo(x, y, this.ancho, java.awt.Color.RED);
             }
         }
     }

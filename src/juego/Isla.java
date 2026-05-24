@@ -7,10 +7,8 @@ import entorno.Herramientas;
 
 public class Isla {
 	double x, y, escala;
-	// variables para calcular el tamaño de la imagen
-	double tamArriba, tamAbajo, tamDerecha, tamIzquierda;
-	// variables para calcular las colisiones
-	double arriba, abajo, izquierda, derecha;
+	double ancho, alto; // Variables para calcular el tamaño de la imagen
+	double arriba, abajo, izquierda, derecha; // Variables para calcular las colisiones
 	Image imagen;
 	Entorno e;
 	
@@ -21,28 +19,26 @@ public class Isla {
 		this.imagen = Herramientas.cargarImagen("juego/isla.png");
 		this.e = e;
 		
-		//Calculo del tamaño de la imagen
-		this.tamAbajo = -this.imagen.getHeight(null) * this.escala / 2;
-		this.tamArriba = this.imagen.getHeight(null) * this.escala / 2;
-		this.tamIzquierda = -this.imagen.getWidth(null) * this.escala / 2;
-		this.tamDerecha = this.imagen.getWidth(null) * this.escala / 2;
+		// Calculo del tamaño de la imagen
+		this.alto = this.imagen.getHeight(null) * this.escala;
+		this.ancho = this.imagen.getWidth(null) * this.escala;
 		
-		//calculo de las colisiones
-		this.arriba = this.y + tamAbajo;
-		this.abajo = this.y + tamArriba;
-		this.derecha = this.x + tamDerecha;
-		this.izquierda = this.x + tamIzquierda;
+		// Calculo de las colisiones
+		this.arriba = this.y - alto / 2;
+		this.abajo = this.y + alto / 2;
+		this.derecha = this.x + ancho / 2;
+		this.izquierda = this.x - ancho / 2;
 	}
 	
 	public void dibujar() {
 		e.dibujarImagen(imagen, this.x, this.y, 0, this.escala);
 	}
 	
-	// metodo que actualiza las collisiones con la posicion actual
+	// Metodo que actualiza las collisiones con la posicion actual
 	public void actualColis() {
-		this.arriba = this.y + tamAbajo;
-		this.abajo = this.y + tamArriba;
-		this.derecha = this.x + tamDerecha;
-		this.izquierda = this.x + tamIzquierda;
+		this.arriba = this.y - alto / 2;
+		this.abajo = this.y + alto / 2;
+		this.derecha = this.x + ancho / 2;
+		this.izquierda = this.x - ancho / 2;
 	}
 }

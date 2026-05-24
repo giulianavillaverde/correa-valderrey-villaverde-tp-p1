@@ -5,11 +5,11 @@ import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego
 {
-
+	
 	private Entorno entorno;
 	Fondo fondo;
 	Princesa princesa;
-	Isla islas;
+	Isla[][] islas;
 	double velocidad;
 	
 	Juego()
@@ -17,14 +17,22 @@ public class Juego extends InterfaceJuego
 		// Inicializa el objeto entorno
 		this.entorno = new Entorno(this, "Proyecto para TP", 800, 600);
 		
-		double centroX = 800 / 2.0; // da 400.0 
-		double centroY = 600 / 2.0; // da 300.0
+		double centroX = this.entorno.ancho() / 2.0; // 400.0 
+		double centroY = this.entorno.alto() / 2.0; // 300.0
+		
 		this.velocidad = 4;
 		
 		this.fondo = new Fondo(centroX, centroY, 1.0, this.entorno);
 		this.princesa = new Princesa(centroX, centroY, this.entorno);
-			
-		this.islas = new Isla(centroX, 550, this.entorno);
+		
+		int[] islaNiveles = {200, 400, 570};
+		this.islas = new Isla[3][5];
+		
+		for(int y = 0; y < this.islas.length; y++) {
+			for(int x = 0; x < this.islas[0].length; x++) {
+				this.islas[y][x] = new Isla(y * 100 + x * 400 + (Math.random() * 100), islaNiveles[y], this.entorno);
+			}
+		}
 		
 		this.entorno.iniciar();
 	}
@@ -45,26 +53,45 @@ public class Juego extends InterfaceJuego
 		}
 		
 		//Gravedad de a princesa
+		
 		if(seApoyo(this.princesa, this.islas)) {
 			this.princesa.caida = false;
 		} else {
 			this.princesa.caida = true;
 		}
 		this.princesa.movVertical();
-
+		
 		// dibujo de elementos
 		this.fondo.dibujar();
 		
-		this.islas.dibujar();
+		for(int y = 0; y < this.islas.length; y++) {
+			for(int x = 0; x < this.islas[0].length; x++) {
+				this.islas[y][x].dibujar();
+			}
+		}
 
 		this.princesa.dibujar();
 		
+		
 	}
 	
-	//Metodo para saber si la princesa esta muy cerca de una isla (colision)
-	//Los valores estan ajustados a mano y ojo para una mejor colision
-	public boolean seApoyo(Princesa p, Isla i) {
-		return p.abajo - i.arriba > -1 && p.abajo - i.arriba < 10 && p.derecha - i.izquierda < -30 && p.izquierda - i.derecha > 30;
+	//Metodo para calcular  si la princesa esta muy cerca de una isla (colision)
+	//Los valores estan ajustados a mano para una mejor colision
+	public boolean seApoyo(Princesa p, Isla[][] i) {
+		for(Isla[] fila: i) {
+			for(Isla isla: fila) {
+				if(isla.arriba - p.abajo < 1 && isla.arriba - p.abajo > -3 && isla.derecha - p.izquierda > 10 && p.derecha - isla.izquierda > 10) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public void moverNivel(Princesa p, Isla[][] i) {
+		if(p.x > (this.entorno.ancho() * 2/3)) {
+			
+		}
 	}
 	
 	@SuppressWarnings("unused")

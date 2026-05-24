@@ -22,6 +22,8 @@ public class Princesa {
 	Image imagenIzquierda;
 	Image imagenDerecha;
 	
+	
+	
 	// Variable lógica para saber hacia dónde mirar
 	boolean mirandoIzquierda;
 
@@ -29,7 +31,7 @@ public class Princesa {
 		this.x = x;
 		this.y = y;
 		this.e = e;
-		this.escala = 0.4; // Ajuste de tamaño
+		this.escala = 0.2; // Ajuste de tamaño
 		this.salto = false;
 		this.caida = true;
 		this.ciclos = 0;
@@ -42,8 +44,9 @@ public class Princesa {
 		//Calculo del tamaño de la imagen
 		this.tamAbajo = -this.imagenDerecha.getHeight(null) * this.escala / 2;
 		this.tamArriba = this.imagenDerecha.getHeight(null) * this.escala / 2;
-		this.tamDerecha = -this.imagenDerecha.getWidth(null) * this.escala / 2;
-		this.tamIzquierda = this.imagenDerecha.getWidth(null) * this.escala / 2;
+		this.tamIzquierda = -this.imagenDerecha.getWidth(null) * this.escala / 2;
+		this.tamDerecha = this.imagenDerecha.getWidth(null) * this.escala / 2;
+		
 		//calculo de las colisiones, cada que una de estos esten en algun metodo es para actualizarlos
 		this.arriba = this.y + tamAbajo;
 		this.abajo = this.y + tamArriba;
@@ -81,7 +84,7 @@ public class Princesa {
 	}
 	
 	public void movVertical() {
-		int maxCiclos = 20;
+		int maxCiclos = 25;
 		//Terminacion del ciclo de salto
 		if(ciclos >= maxCiclos) {
 			ciclos = 0;

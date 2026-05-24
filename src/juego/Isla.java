@@ -24,8 +24,9 @@ public class Isla {
 		//Calculo del tamaño de la imagen
 		this.tamAbajo = -this.imagen.getHeight(null) * this.escala / 2;
 		this.tamArriba = this.imagen.getHeight(null) * this.escala / 2;
-		this.tamDerecha = -this.imagen.getWidth(null) * this.escala / 2;
-		this.tamIzquierda = this.imagen.getWidth(null) * this.escala / 2;
+		this.tamIzquierda = -this.imagen.getWidth(null) * this.escala / 2;
+		this.tamDerecha = this.imagen.getWidth(null) * this.escala / 2;
+		
 		//calculo de las colisiones
 		this.arriba = this.y + tamAbajo;
 		this.abajo = this.y + tamArriba;

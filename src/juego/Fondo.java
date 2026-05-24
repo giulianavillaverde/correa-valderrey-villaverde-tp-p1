@@ -20,5 +20,4 @@ public class Fondo {
 	public void dibujar() {
 		e.dibujarImagen(imagenFondo, this.x, this.y, 0, this.escala);
 	}
-	
-} 
+}

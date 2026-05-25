@@ -13,7 +13,6 @@ public class Enemigo {
     double arriba, abajo, izquierda, derecha;
     int limiteIzquierdo;
     int limiteDerecho;
-    
     double escala = 0.08;
     
     public Enemigo(double x, double y, double velocidad, int anchoPantalla, int altoPantalla) {
@@ -53,6 +52,44 @@ public class Enemigo {
             x += velocidad;
             actualizarColisiones();
         }
+    }
+    
+    // Nuevo método: mover con colisión de islas
+    public void moverConIslas(Isla[][] islas) {
+        if (!activo) return;
+        
+        double nuevaX = x + velocidad;
+        
+        // Verificar colisión con islas
+        boolean colision = false;
+        for(Isla[] fila : islas) {
+            for(Isla isla : fila) {
+                if (isla != null) {
+                    // Calcular nueva posición temporal
+                    double tempX = nuevaX;
+                    double tempIzquierda = tempX - ancho/2;
+                    double tempDerecha = tempX + ancho/2;
+                    
+                    // Verificar si hay colisión horizontal con la isla
+                    if (tempDerecha > isla.izquierda && tempIzquierda < isla.derecha &&
+                        abajo > isla.arriba && arriba < isla.abajo) {
+                        colision = true;
+                        break;
+                    }
+                }
+            }
+            if(colision) break;
+        }
+        
+        // Si no hay colisión, mover normalmente
+        if (!colision) {
+            x = nuevaX;
+        } else {
+            // Rebotar o cambiar dirección (opcional)
+            velocidad = -velocidad;
+        }
+        
+        actualizarColisiones();
     }
     
     public void actualizarColisiones() {

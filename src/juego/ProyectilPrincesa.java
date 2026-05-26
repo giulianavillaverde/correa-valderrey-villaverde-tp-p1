@@ -1,17 +1,20 @@
 package juego;
 
 import entorno.Entorno;
-import java.awt.Color;
+import entorno.Herramientas;
+import java.awt.Image;
 
-public class ProyectilEnemigo {
+public class ProyectilPrincesa {
     double x, y;
     double velocidadX, velocidadY;
     double ancho, alto;
     boolean activo;
     int anchoPantalla, altoPantalla;
     double arriba, abajo, izquierda, derecha;
+    Image imagen;
+    double escala = 0.08;
     
-    public ProyectilEnemigo(double xInicial, double yInicial, double dx, double dy, int anchoPantalla, int altoPantalla) {
+    public ProyectilPrincesa(double xInicial, double yInicial, double dx, double dy, int anchoPantalla, int altoPantalla) {
         this.x = xInicial;
         this.y = yInicial;
         this.velocidadX = dx * 10;
@@ -19,8 +22,16 @@ public class ProyectilEnemigo {
         this.activo = true;
         this.anchoPantalla = anchoPantalla;
         this.altoPantalla = altoPantalla;
-        this.ancho = 10;
-        this.alto = 10;
+        
+        this.imagen = Herramientas.cargarImagen("juego/ProyectilPrincesa.png");
+        
+        if (this.imagen != null) {
+            this.ancho = this.imagen.getWidth(null) * this.escala;
+            this.alto = this.imagen.getHeight(null) * this.escala;
+        } else {
+            this.ancho = 10;
+            this.alto = 10;
+        }
         
         actualizarColisiones();
     }
@@ -33,7 +44,11 @@ public class ProyectilEnemigo {
     
     public void dibujar(Entorno e) {
         if (activo) {
-            e.dibujarCirculo(x, y, 8, Color.YELLOW);
+            if (imagen != null) {
+                e.dibujarImagen(imagen, x, y, 0, this.escala);
+            } else {
+                e.dibujarCirculo(x, y, 8, java.awt.Color.YELLOW);
+            }
         }
     }
     

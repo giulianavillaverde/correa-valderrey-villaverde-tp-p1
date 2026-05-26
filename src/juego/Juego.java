@@ -11,7 +11,7 @@ public class Juego extends InterfaceJuego {
     Princesa princesa;
     Isla[][] islas;
     Enemigo[] enemigos;
-    ProyectilEnemigo proyectil;
+    ProyectilPrincesa proyectil;
     Castillo castillo;
     Corazon[] corazones;
     double velocidad;
@@ -301,7 +301,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // Disparo
+        // ==================== DISPARO ====================
         if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado) {
             int mouseX = this.entorno.mouseX();
             int mouseY = this.entorno.mouseY();
@@ -314,7 +314,7 @@ public class Juego extends InterfaceJuego {
                 dx = dx / distancia;
                 dy = dy / distancia;
                 
-                proyectil = new ProyectilEnemigo(this.princesa.x, this.princesa.y - 20, dx, dy, 
+                proyectil = new ProyectilPrincesa(this.princesa.x, this.princesa.y - 20, dx, dy, 
                                           entorno.ancho(), entorno.alto());
             }
         }
@@ -326,7 +326,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // Colisión princesa-enemigo
+        // ==================== COLISIÓN PRINCESA - ENEMIGO ====================
         for (int i = 0; i < enemigos.length; i++) {
             Enemigo e = enemigos[i];
             if (e != null && e.activo) {
@@ -341,7 +341,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // Colisión proyectil-enemigo
+        // ==================== COLISIÓN PROYECTIL - ENEMIGO ====================
         if (proyectil != null && proyectil.activo) {
             for (int i = 0; i < enemigos.length; i++) {
                 Enemigo e = enemigos[i];
@@ -356,14 +356,14 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // Caída al vacío
+        // ==================== CAÍDA AL VACÍO ====================
         if (this.princesa.y > this.entorno.alto() + 100) {
             vidas--;
             actualizarCorazones();
             iniciarReaparicion();
         }
         
-        // Victoria
+        // ==================== VICTORIA ====================
         if (castillo != null && castillo.activo) {
             if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo || 
                   princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
@@ -372,7 +372,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // Derrota
+        // ==================== DERROTA ====================
         if (this.vidas <= 0) {
             this.juegoTerminado = true;
             this.victoria = false;

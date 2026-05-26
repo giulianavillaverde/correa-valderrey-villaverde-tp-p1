@@ -14,6 +14,7 @@ public class Juego extends InterfaceJuego {
     ProyectilPrincesa proyectil;
     Castillo castillo;
     Corazon[] corazones;
+    PocionVida[] pociones;
     double velocidad;
     
     int vidas;
@@ -28,6 +29,10 @@ public class Juego extends InterfaceJuego {
     int tiempoReaparecer;
     boolean reapareciendo;
     boolean primeraVez;
+    
+    // Variables para items
+    int enemigosEliminados;
+    int enemigosParaItem;
     
     Juego() {
         this.entorno = new Entorno(this, "Super Elizabeth Sis", 800, 600);
@@ -46,13 +51,18 @@ public class Juego extends InterfaceJuego {
         this.tiempoReaparecer = 0;
         this.primeraVez = true;
         
+        // Inicia las pociones
+        this.pociones = new PocionVida[10];
+        this.enemigosEliminados = 0;
+        this.enemigosParaItem = 4;
+        
         this.fondo = new Fondo(centroX, 300, 1.5, this.entorno);
         this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150;
         
-        // ==================== CREAR ISLAS ====================
+        // CREACIÓN DE ISLAS
         this.islas = new Isla[3][15];
         
-        // NIVEL 2: ISLAS GRANDES (piso)
+        // NIVEL 2: ISLAS + GRANDES (piso)
         double acumuladorX = 300;
         double ultimaXGrande = 0;
         for(int i = 0; i < 10; i++) {
@@ -89,14 +99,14 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // ==================== CASTILLO ====================
+        // CASTILLO
         double posicionCastillo = ultimaXGrande + 350;
         if (posicionCastillo > anchoTotalMapa - 150) {
             posicionCastillo = anchoTotalMapa - 150;
         }
         this.castillo = new Castillo(posicionCastillo, 530, this.entorno);
         
-        // Crear corazones
+        // Crear corazones 
         this.corazones = new Corazon[6];
         for(int i = 0; i < this.corazones.length; i++) {
             this.corazones[i] = new Corazon(35 + i * 40, 35, 0.08);
@@ -142,7 +152,7 @@ public class Juego extends InterfaceJuego {
             dibujarTodo();
             return;
         }
-        
+        //Métodos para que la princesa vuelva a reaparecer después de perder una vida
         if (reapareciendo) {
             tiempoReaparecer--;
             if (tiempoReaparecer <= 0) {
@@ -175,7 +185,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // Física
+        // Gravedad
         if (!this.princesa.salto) {
             this.princesa.velocidadY += 0.8;
         }
@@ -190,7 +200,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // ==================== COLISIÓN CON ISLAS ====================
+        // Colisión de la princesa con las Islas
         boolean enIsla = false;
         
         for(Isla[] fila: this.islas) {
@@ -226,7 +236,7 @@ public class Juego extends InterfaceJuego {
             this.princesa.caida = true;
         }
         
-        // ==================== ENEMIGOS (con colisión de islas) ====================
+        // ENEMIGOS
         for (int i = 0; i < enemigos.length; i++) {
             if (enemigos[i] != null && enemigos[i].activo) {
                 enemigos[i].moverConIslas(this.islas);
@@ -270,7 +280,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // ==================== DISPARO ====================
+        // DISPARO DE LA PRINCESA CON MOUSE
         if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado) {
             int mouseX = this.entorno.mouseX();
             int mouseY = this.entorno.mouseY();
@@ -310,7 +320,7 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // ==================== COLISIÓN PROYECTIL - ENEMIGO ====================
+        // COLISIÓN PROYECTIL - ENEMIGO 
         if (proyectil != null && proyectil.activo) {
             for (int i = 0; i < enemigos.length; i++) {
                 Enemigo e = enemigos[i];
@@ -319,20 +329,42 @@ public class Juego extends InterfaceJuego {
                           proyectil.derecha <= e.izquierda || proyectil.izquierda >= e.derecha)) {
                         proyectil = null;
                         enemigos[i] = null;
+                        // Aumentar contador de enemigos eliminados
+                        enemigosEliminados++;
+                        // Verificar si hay que generar una poción (en la posición de la princesa)
+                        if (enemigosEliminados >= enemigosParaItem) {
+                            generarPocion(this.princesa.x, this.princesa.y);
+                            enemigosEliminados = 0;
+                        }
                         break;
                     }
                 }
             }
         }
         
-        // ==================== CAÍDA AL VACÍO ====================
+        //COLISIÓN PRINCESA - POCIÓN 
+        for (int i = 0; i < pociones.length; i++) {
+            PocionVida p = pociones[i];
+            if (p != null && p.activo) {
+                if (!(princesa.abajo <= p.arriba || princesa.arriba >= p.abajo || 
+                      princesa.derecha <= p.izquierda || princesa.izquierda >= p.derecha)) {
+                    // Dar vida extra
+                    vidas++;
+                    if (vidas > 6) vidas = 6;
+                    actualizarCorazones();
+                    pociones[i] = null;
+                }
+            }
+        }
+        
+        // CAÍDA AL VACÍO 
         if (this.princesa.y > this.entorno.alto() + 100) {
             vidas--;
             actualizarCorazones();
             iniciarReaparicion();
         }
         
-        // ==================== VICTORIA ====================
+        // VICTORIA 
         if (castillo != null && castillo.activo) {
             if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo || 
                   princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
@@ -341,13 +373,23 @@ public class Juego extends InterfaceJuego {
             }
         }
         
-        // ==================== DERROTA ====================
+        //  DERROTA 
         if (this.vidas <= 0) {
             this.juegoTerminado = true;
             this.victoria = false;
         }
         
         dibujarTodo();
+    }
+    
+    public void generarPocion(double x, double y) {
+        // Buscar espacio libre en el array de pociones
+        for (int i = 0; i < pociones.length; i++) {
+            if (pociones[i] == null) {
+                pociones[i] = new PocionVida(x, y, this.entorno);
+                break;
+            }
+        }
     }
     
     public void actualizarCorazones() {
@@ -374,6 +416,12 @@ public class Juego extends InterfaceJuego {
         this.reapareciendo = false;
         this.primeraVez = true;
         this.fondo.x = this.entorno.ancho() / 2.0;
+        this.enemigosEliminados = 0;
+        
+        // Limpiar pociones
+        for (int i = 0; i < pociones.length; i++) {
+            pociones[i] = null;
+        }
         
         for(int i = 0; i < corazones.length; i++) {
             corazones[i].activo = true;
@@ -450,6 +498,13 @@ public class Juego extends InterfaceJuego {
             }
         }
         
+        // Dibujar pociones
+        for(PocionVida p: pociones) {
+            if (p != null && p.activo) {
+                p.dibujar(this.entorno);
+            }
+        }
+        
         if (proyectil != null) {
             proyectil.dibujar(this.entorno);
         }
@@ -466,6 +521,10 @@ public class Juego extends InterfaceJuego {
             this.entorno.cambiarFont("Arial", 20, Color.YELLOW);
             this.entorno.escribirTexto("¡PERDISTE UNA VIDA!", this.entorno.ancho()/2 - 100, this.entorno.alto()/2);
         }
+        
+        // Mostrar contador de enemigos para la próxima poción
+        this.entorno.cambiarFont("Arial", 14, Color.WHITE);
+        this.entorno.escribirTexto("Próxima poción: " + (enemigosParaItem - enemigosEliminados) + " enemigos", 20, 100);
     }
     
     public void moverNivel() {
@@ -485,6 +544,14 @@ public class Juego extends InterfaceJuego {
             if(castillo != null) {
                 castillo.x -= this.velocidad;
                 castillo.actualizarColisiones();
+            }
+            
+            // Mover pociones también
+            for(PocionVida p: pociones) {
+                if(p != null) {
+                    p.x -= this.velocidad;
+                    p.actualizarColisiones();
+                }
             }
         }
     }

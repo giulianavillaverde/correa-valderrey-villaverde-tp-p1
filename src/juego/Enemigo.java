@@ -13,7 +13,6 @@ public class Enemigo {
     double arriba, abajo, izquierda, derecha;
     int limiteIzquierdo;
     int limiteDerecho;
-    double escala = 0.08;
     
     public Enemigo(double x, double y, double velocidad, int anchoPantalla, int altoPantalla) {
         this.x = x;
@@ -24,11 +23,11 @@ public class Enemigo {
         this.imagen = Herramientas.cargarImagen("juego/enemigo.png");
         
         if (this.imagen != null) {
-            this.ancho = this.imagen.getWidth(null) * this.escala;
-            this.alto = this.imagen.getHeight(null) * this.escala;
+            this.ancho = this.imagen.getWidth(null) * 0.1;
+            this.alto = this.imagen.getHeight(null) * 0.1;
         } else {
-            this.ancho = 20;
-            this.alto = 20;
+            this.ancho = 25;
+            this.alto = 25;
         }
         
         this.limiteIzquierdo = -50;
@@ -40,9 +39,9 @@ public class Enemigo {
     public void dibujar(Entorno e) {
         if (activo) {
             if (imagen != null) {
-                e.dibujarImagen(imagen, x, y, 0, this.escala);
+                e.dibujarImagen(imagen, x, y, 0, 0.1);
             } else {
-                e.dibujarCirculo(x, y, this.ancho, java.awt.Color.RED);
+                e.dibujarCirculo(x, y, 15, java.awt.Color.RED);
             }
         }
     }
@@ -54,7 +53,7 @@ public class Enemigo {
         }
     }
     
-    // Nuevo método: mover con colisión de islas
+    // Método para mover con colisión de islas
     public void moverConIslas(Isla[][] islas) {
         if (!activo) return;
         
@@ -64,13 +63,10 @@ public class Enemigo {
         boolean colision = false;
         for(Isla[] fila : islas) {
             for(Isla isla : fila) {
-                if (isla != null) {
-                    // Calcular nueva posición temporal
-                    double tempX = nuevaX;
-                    double tempIzquierda = tempX - ancho/2;
-                    double tempDerecha = tempX + ancho/2;
+                if(isla != null) {
+                    double tempIzquierda = nuevaX - ancho/2;
+                    double tempDerecha = nuevaX + ancho/2;
                     
-                    // Verificar si hay colisión horizontal con la isla
                     if (tempDerecha > isla.izquierda && tempIzquierda < isla.derecha &&
                         abajo > isla.arriba && arriba < isla.abajo) {
                         colision = true;
@@ -81,12 +77,10 @@ public class Enemigo {
             if(colision) break;
         }
         
-        // Si no hay colisión, mover normalmente
-        if (!colision) {
-            x = nuevaX;
-        } else {
-            // Rebotar o cambiar dirección (opcional)
+        if (colision) {
             velocidad = -velocidad;
+        } else {
+            x = nuevaX;
         }
         
         actualizarColisiones();

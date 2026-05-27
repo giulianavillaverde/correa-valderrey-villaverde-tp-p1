@@ -12,6 +12,7 @@ public class Juego extends InterfaceJuego {
     Isla[][] islas;
     Enemigo[] enemigos;
     ProyectilPrincesa proyectil;
+    ExplosionPrincesa explosion;
     Castillo castillo;
     Corazon[] corazones;
     PocionVida[] pociones;
@@ -30,6 +31,7 @@ public class Juego extends InterfaceJuego {
     boolean reapareciendo;
     boolean primeraVez;
     
+    int tiempoExplosion;
     // Variables para items
     int enemigosEliminados;
     int enemigosParaItem;
@@ -50,7 +52,7 @@ public class Juego extends InterfaceJuego {
         this.reapareciendo = false;
         this.tiempoReaparecer = 0;
         this.primeraVez = true;
-        
+        this.tiempoExplosion = 0;
         // Inicia las pociones
         this.pociones = new PocionVida[10];
         this.enemigosEliminados = 0;
@@ -320,6 +322,39 @@ public class Juego extends InterfaceJuego {
             }
         }
         
+        // Explosion de la princesa con click derecho
+        if (this.entorno.sePresionoBoton(this.entorno.BOTON_DERECHO) 
+        		&& this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0) {
+        	this.explosion = new ExplosionPrincesa(this.princesa.x, this.princesa.y, entorno);
+        	this.tiempoExplosion = 5;
+        } // Disminuye el tiempo para volver a hacer la explosion
+        if(this.tiempoExplosion > 0 && this.entorno.numeroDeTick() % 50 == 0) {
+    		this.tiempoExplosion -= 1;
+    	} // Comprobacion para mover y detectar colisiones de la explosion
+        if (this.explosion != null) {
+        	this.explosion.mover(this.princesa.x, this.princesa.y);
+        	for (int i = 0; i < enemigos.length; i++) {
+        		Enemigo e = enemigos[i];
+                if (e != null && e.activo) {
+                    if (!(this.explosion.abajo <= e.arriba || this.explosion.arriba >= e.abajo || 
+                    		this.explosion.derecha <= e.izquierda || this.explosion.izquierda >= e.derecha)) {
+                    	enemigos[i] = null;
+                        // Aumentar contador de enemigos eliminados
+                        enemigosEliminados++;
+                        // Verificar si hay que generar una poción (en la posición de la princesa)
+                        if (enemigosEliminados >= enemigosParaItem) {
+                            generarPocion(this.princesa.x, this.princesa.y);
+                            enemigosEliminados = 0;
+                        }
+                        break;
+                    }
+                }
+        	}
+        	if(this.explosion.fin) { //Desaparecer la explosion
+        		this.explosion = null;
+        	}
+        }
+        
         // ==================== COLISIÓN PRINCESA - ENEMIGO ====================
         for (int i = 0; i < enemigos.length; i++) {
             Enemigo e = enemigos[i];
@@ -395,7 +430,7 @@ public class Juego extends InterfaceJuego {
         }
         
         dibujarTodo();
-    }
+    } //Fin del tick
     
     public void generarPocion(double x, double y) {
         // Buscar espacio libre en el array de pociones
@@ -539,6 +574,10 @@ public class Juego extends InterfaceJuego {
             proyectil.dibujar(this.entorno);
         }
         
+        if (this.explosion != null) {
+        	this.explosion.dibujar(entorno);
+        }
+        
         if (!reapareciendo) {
             this.princesa.dibujar();
         }
@@ -551,7 +590,8 @@ public class Juego extends InterfaceJuego {
             this.entorno.cambiarFont("Arial", 20, Color.YELLOW);
             this.entorno.escribirTexto("¡PERDISTE UNA VIDA!", this.entorno.ancho()/2 - 100, this.entorno.alto()/2);
         }
-        
+        this.entorno.cambiarFont("Arial", 14, Color.BLACK);
+        this.entorno.escribirTexto("Tiempo para explosion: " + this.tiempoExplosion, 620, 100);
         // Mostrar contador de enemigos para la próxima poción
         this.entorno.cambiarFont("Arial", 14, Color.WHITE);
         this.entorno.escribirTexto("Próxima poción: " + (enemigosParaItem - enemigosEliminados) + " enemigos", 20, 100);

@@ -23,11 +23,11 @@ public class Enemigo {
         this.imagen = Herramientas.cargarImagen("juego/enemigo.png");
         
         if (this.imagen != null) {
-            this.ancho = this.imagen.getWidth(null) * 0.1;
-            this.alto = this.imagen.getHeight(null) * 0.1;
+            this.ancho = this.imagen.getWidth(null) * 0.08;
+            this.alto = this.imagen.getHeight(null) * 0.08;
         } else {
-            this.ancho = 25;
-            this.alto = 25;
+            this.ancho = 20;
+            this.alto = 20;
         }
         
         this.limiteIzquierdo = -50;
@@ -39,7 +39,7 @@ public class Enemigo {
     public void dibujar(Entorno e) {
         if (activo) {
             if (imagen != null) {
-                e.dibujarImagen(imagen, x, y, 0, 0.1);
+                e.dibujarImagen(imagen, x, y, 0, 0.08);
             } else {
                 e.dibujarCirculo(x, y, 15, java.awt.Color.RED);
             }
@@ -53,7 +53,7 @@ public class Enemigo {
         }
     }
     
-    // Método para mover con colisión de islas
+    // Método para mover con colisión de islas (no atraviesan)
     public void moverConIslas(Isla[][] islas) {
         if (!activo) return;
         

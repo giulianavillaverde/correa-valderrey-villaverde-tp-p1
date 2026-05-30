@@ -38,11 +38,12 @@ public class ExplosionPrincesa {
 	}
 	// Metodo que mueve y escala la explosion hasta un limite para simular animacion
 	public void mover(double x, double y) {
-		if (this.tiempo <= 15) {
+		if (this.tiempo <= 10) {
 			this.tiempo++;
-			this.escala += 0.5;
-		} else if(this.tiempo <= 20) { // Congelar un momento la animacion
+			this.escala += 0.4;
+		} else if(this.tiempo <= 25) { // Congelar un momento la animacion
 			this.tiempo++;
+			this.escala += 0.1;
 		} else { // Desaparecer la explocion
 			this.fin = true;
 		}

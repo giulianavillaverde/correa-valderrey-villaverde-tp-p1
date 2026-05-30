@@ -20,7 +20,7 @@ public class Princesa {
 		this.x = x;
 		this.y = y;
 		this.e = e;
-		this.escala = 0.2;
+		this.escala = 0.15;
 		this.salto = false;
 		this.caida = true;
 		this.ciclos = 0;

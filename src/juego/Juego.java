@@ -40,7 +40,7 @@ public class Juego extends InterfaceJuego {
         this.entorno = new Entorno(this, "Super Elizabeth Sis", 800, 600);
         
         double centroX = this.entorno.ancho() / 2.0;
-        this.velocidad = 4;
+        this.velocidad = 3;
         this.vidas = 6;
         this.juegoTerminado = false;
         this.victoria = false;
@@ -76,7 +76,7 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                this.islas[2][i] = new Isla(xPos, 530, this.entorno, 1);
+                this.islas[2][i] = new Isla(xPos, 550, this.entorno, 2);
                 acumuladorX = xPos;
                 ultimaXGrande = xPos;
             }
@@ -93,8 +93,8 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                double yPos = 350 + (Math.random() * 50 - 25);
-                this.islas[1][i] = new Isla(xPos, yPos, this.entorno, 2);
+                //double yPos = 350 + (Math.random() * 50 - 25);
+                this.islas[1][i] = new Isla(xPos, 370, this.entorno, 2);
                 acumuladorX = xPos;
             }
         }
@@ -110,8 +110,8 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                double yPos = 200 + (Math.random() * 50 - 25);
-                this.islas[0][i] = new Isla(xPos, yPos, this.entorno, 3);
+                //double yPos = 200 + (Math.random() * 50 - 25);
+                this.islas[0][i] = new Isla(xPos, 200, this.entorno, 2);
                 acumuladorX = xPos;
             }
         }
@@ -282,8 +282,8 @@ public class Juego extends InterfaceJuego {
                 if (posicionLibre != -1) {
                     int lado = (int)(Math.random() * 2);
                     double x, vel;
-                    double yEnemigo = 80 + Math.random() * 450;
-                    
+                    double[] yRandom = {70, 250, 420}; //posiciones donde pueden aparecer los enemigos
+                    double yEnemigo = yRandom[(int)(Math.random() * 3)] + (Math.random() * 70);
                     if (lado == 0) {
                         x = -30;
                         vel = 2 + Math.random() * 3;
@@ -327,10 +327,14 @@ public class Juego extends InterfaceJuego {
         		&& this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0) {
         	this.explosion = new ExplosionPrincesa(this.princesa.x, this.princesa.y, entorno);
         	this.tiempoExplosion = 5;
-        } // Disminuye el tiempo para volver a hacer la explosion
+        } 
+        
+        // Disminuye el tiempo para volver a hacer la explosion
         if(this.tiempoExplosion > 0 && this.entorno.numeroDeTick() % 50 == 0) {
     		this.tiempoExplosion -= 1;
-    	} // Comprobacion para mover y detectar colisiones de la explosion
+    	} 
+        
+        // Comprobacion para mover y detectar colisiones de la explosion
         if (this.explosion != null) {
         	this.explosion.mover(this.princesa.x, this.princesa.y);
         	for (int i = 0; i < enemigos.length; i++) {
@@ -485,13 +489,13 @@ public class Juego extends InterfaceJuego {
         for(int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
-                separacion = 250 + Math.random() * 80;
+                separacion = 250 + Math.random() * 80; // Primera isla más cerca (250-330)
             } else {
-                separacion = 480 + Math.random() * 120;
+                separacion = 480 + Math.random() * 120; // Después separación normal
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                this.islas[2][i] = new Isla(xPos, 530, this.entorno, 1);
+                this.islas[2][i] = new Isla(xPos, 530, this.entorno, 2);
                 acumuladorX = xPos;
                 ultimaXGrande = xPos;
             }
@@ -507,8 +511,8 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                double yPos = 350 + (Math.random() * 50 - 25);
-                this.islas[1][i] = new Isla(xPos, yPos, this.entorno, 2);
+                //double yPos = 350 + (Math.random() * 50 - 25);
+                this.islas[1][i] = new Isla(xPos, 350, this.entorno, 2);
                 acumuladorX = xPos;
             }
         }
@@ -523,8 +527,8 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                double yPos = 200 + (Math.random() * 50 - 25);
-                this.islas[0][i] = new Isla(xPos, yPos, this.entorno, 3);
+                //double yPos = 200 + (Math.random() * 50 - 25);
+                this.islas[0][i] = new Isla(xPos, 200, this.entorno, 2);
                 acumuladorX = xPos;
             }
         }

@@ -5,7 +5,7 @@ import entorno.Entorno;
 import entorno.Herramientas;
 
 public class Enemigo {
-    double x, y;
+    double x, y, escala;
     double ancho, alto;
     double velocidad;
     Image imagen;
@@ -19,12 +19,13 @@ public class Enemigo {
         this.y = y;
         this.velocidad = velocidad;
         this.activo = true;
+        this.escala = 0.05;
         
         this.imagen = Herramientas.cargarImagen("juego/enemigo.png");
         
         if (this.imagen != null) {
-            this.ancho = this.imagen.getWidth(null) * 0.08;
-            this.alto = this.imagen.getHeight(null) * 0.08;
+            this.ancho = this.imagen.getWidth(null) * this.escala ;
+            this.alto = this.imagen.getHeight(null) * this.escala ;
         } else {
             this.ancho = 20;
             this.alto = 20;
@@ -39,7 +40,7 @@ public class Enemigo {
     public void dibujar(Entorno e) {
         if (activo) {
             if (imagen != null) {
-                e.dibujarImagen(imagen, x, y, 0, 0.08);
+                e.dibujarImagen(imagen, x, y, 0, this.escala);
             } else {
                 e.dibujarCirculo(x, y, 15, java.awt.Color.RED);
             }

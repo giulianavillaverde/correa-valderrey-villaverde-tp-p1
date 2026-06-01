@@ -11,24 +11,25 @@ public class Isla {
 	Image imagen;
 	Entorno e;
 	int tipo; // 1 = grande, 2 = mediana, 3 = chiquita
-	
+
 	// Constructor con tipo: 1=grande, 2=mediana, 3=chiquita
 	public Isla(double x, double y, Entorno e, int tipo) {
 		this.x = x;
 		this.y = y;
 		this.e = e;
 		this.tipo = tipo;
-		
+
 		if (tipo == 1) {
-			this.escala = 0.5; // Grande
+			this.escala = 0.3; // Grande
+			this.imagen = Herramientas.cargarImagen("juego/islaGrande.png");
 		} else if (tipo == 2) {
-			this.escala = 0.35; // Mediana
+			this.escala = 0.25; // Mediana
+			this.imagen = Herramientas.cargarImagen("juego/islaMediana.png");
 		} else {
-			this.escala = 0.2; // Chiquita
+			this.escala = 0.15; // Chica
+			this.imagen = Herramientas.cargarImagen("juego/islaChica.png");
 		}
-		
-		this.imagen = Herramientas.cargarImagen("juego/isla.png");
-		
+
 		if (this.imagen != null) {
 			this.alto = this.imagen.getHeight(null) * this.escala;
 			this.ancho = this.imagen.getWidth(null) * this.escala;
@@ -36,15 +37,15 @@ public class Isla {
 			this.alto = 30;
 			this.ancho = 80;
 		}
-		
+
 		actualColis();
 	}
-	
+
 	// Constructor para compatibilidad
 	public Isla(double x, double y, Entorno e) {
 		this(x, y, e, 3);
 	}
-	
+
 	public void dibujar() {
 		if (imagen != null) {
 			e.dibujarImagen(imagen, this.x, this.y, 0, this.escala);
@@ -52,7 +53,7 @@ public class Isla {
 			e.dibujarRectangulo(this.x, this.y, this.ancho, this.alto, 0, java.awt.Color.GREEN);
 		}
 	}
-	
+
 	public void actualColis() {
 		this.arriba = this.y - alto / 2;
 		this.abajo = this.y + alto / 2;

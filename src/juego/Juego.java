@@ -1,11 +1,13 @@
 package juego;
 
 import entorno.Entorno;
+import entorno.Herramientas;
 import entorno.InterfaceJuego;
 import java.awt.Color;
+import java.awt.Image;
 
 public class Juego extends InterfaceJuego {
-    
+
     private Entorno entorno;
     Fondo fondo;
     Princesa princesa;
@@ -17,28 +19,29 @@ public class Juego extends InterfaceJuego {
     Corazon[] corazones;
     PocionVida[] pociones;
     double velocidad;
-    
+    Image fondoVictoria;
+
     int vidas;
     boolean juegoTerminado;
     boolean victoria;
     double anchoTotalMapa;
-    
+
     int contadorSpawn;
     int intervaloMinEnemigos;
     int minEnemigosPantalla;
-    
+
     int tiempoReaparecer;
     boolean reapareciendo;
     boolean primeraVez;
-    
+
     int tiempoExplosion;
     // Variables para items
     int enemigosEliminados;
     int enemigosParaItem;
-    
+
     Juego() {
         this.entorno = new Entorno(this, "Super Elizabeth Sis", 800, 600);
-        
+
         double centroX = this.entorno.ancho() / 2.0;
         this.velocidad = 3;
         this.vidas = 6;
@@ -46,7 +49,7 @@ public class Juego extends InterfaceJuego {
         this.victoria = false;
         this.contadorSpawn = 0;
         this.intervaloMinEnemigos = 40;
-        this.minEnemigosPantalla = 5;
+        this.minEnemigosPantalla = 3;
         this.proyectil = null;
         this.anchoTotalMapa = 4000;
         this.reapareciendo = false;
@@ -57,93 +60,95 @@ public class Juego extends InterfaceJuego {
         this.pociones = new PocionVida[10];
         this.enemigosEliminados = 0;
         this.enemigosParaItem = 4;
-        
+
         this.fondo = new Fondo(centroX, 300, 1.5, this.entorno);
         this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150;
-        
+
         // CREACIÓN DE ISLAS
         this.islas = new Isla[3][15];
-        
+
         // NIVEL 2: ISLAS GRANDES (piso) - La primera isla aparece cerca
-        double acumuladorX = 100;  // Empieza más cerca
+        double acumuladorX = 100; // Empieza más cerca
         double ultimaXGrande = 0;
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
                 separacion = 250 + Math.random() * 80; // Primera isla más cerca (250-330)
             } else {
-                separacion = 480 + Math.random() * 120; // Después separación normal de islas
+                separacion = 560 + Math.random() * 50; // Separación para Isla Grande (hueco ~100-150px)
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                this.islas[2][i] = new Isla(xPos, 550, this.entorno, 2);
+                this.islas[2][i] = new Isla(xPos, 560, this.entorno, 1);
                 acumuladorX = xPos;
                 ultimaXGrande = xPos;
             }
         }
-        
+
         // NIVEL 1: ISLAS MEDIANAS
         acumuladorX = 150;
-        for(int i = 0; i < 10; i++) {
+        double ultimaXMediana = 0;
+        for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
                 separacion = 220 + Math.random() * 80;
             } else {
-                separacion = 350 + Math.random() * 100;
+                separacion = 480 + Math.random() * 70; // Separación para Isla Mediana (hueco ~100-170px)
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                //double yPos = 350 + (Math.random() * 50 - 25);
-                this.islas[1][i] = new Isla(xPos, 370, this.entorno, 2);
+                // double yPos = 350 + (Math.random() * 50 - 25);
+                this.islas[1][i] = new Isla(xPos, 340, this.entorno, 2);
                 acumuladorX = xPos;
+                ultimaXMediana = xPos;
             }
         }
-        
+
         // NIVEL 0: ISLAS CHIQUITAS
         acumuladorX = 200;
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
                 separacion = 200 + Math.random() * 80;
             } else {
-                separacion = 330 + Math.random() * 100;
+                separacion = 260 + Math.random() * 60; // Separación para Isla Chica (hueco ~110-170px)
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                //double yPos = 200 + (Math.random() * 50 - 25);
-                this.islas[0][i] = new Isla(xPos, 200, this.entorno, 2);
+                // double yPos = 200 + (Math.random() * 50 - 25);
+                this.islas[0][i] = new Isla(xPos, 120, this.entorno, 3);
                 acumuladorX = xPos;
             }
         }
-        
+
         // CASTILLO
-        double posicionCastillo = ultimaXGrande + 350;
+        double posicionCastillo = ultimaXMediana;
         if (posicionCastillo > anchoTotalMapa - 150) {
             posicionCastillo = anchoTotalMapa - 150;
         }
-        this.castillo = new Castillo(posicionCastillo, 530, this.entorno);
-        
-        // Crear corazones 
+        this.castillo = new Castillo(posicionCastillo, 250, this.entorno);
+
+        // Crear corazones
         this.corazones = new Corazon[6];
-        for(int i = 0; i < this.corazones.length; i++) {
+        for (int i = 0; i < this.corazones.length; i++) {
             this.corazones[i] = new Corazon(35 + i * 40, 35, 0.08);
         }
-        
+
         this.princesa = new Princesa(centroX, 500, this.entorno);
         this.enemigos = new Enemigo[30];
-        
+
         this.entorno.iniciar();
     }
-    
+
     public void tick() {
         if (primeraVez) {
             primeraVez = false;
-            
+
             // Posicionar princesa sobre la primera isla grande
-            for(Isla isla : this.islas[2]) {
-                if(isla != null) {
+            for (Isla isla : this.islas[2]) {
+                if (isla != null) {
                     this.princesa.x = isla.x;
-                    this.princesa.y = isla.arriba - this.princesa.alto/2;
+                    this.princesa.y = isla.arriba - this.princesa.alto / 2;
                     break;
                 }
             }
@@ -152,25 +157,36 @@ public class Juego extends InterfaceJuego {
             this.princesa.salto = false;
             this.princesa.actualColis();
         }
-        
-        //  PANTALLA DE FIN DE JUEGO 
+
+        // PANTALLA DE FIN DE JUEGO
         if (juegoTerminado) {
+            if (victoria && this.fondoVictoria != null) {
+                // Dibuja el gif de fondo centrado en la pantalla con escala 1.0 (podés ajustar
+                // este 1.0 si queda chico/grande)
+                this.entorno.dibujarImagen(this.fondoVictoria, this.entorno.ancho() / 2, this.entorno.alto() / 2, 0,
+                        1.0);
+            }
+
             this.entorno.cambiarFont("Arial", 30, Color.WHITE);
             if (victoria) {
-                this.entorno.escribirTexto("¡VICTORIA!", this.entorno.ancho()/2 - 70, this.entorno.alto()/2);
-                this.entorno.escribirTexto("¡Rescataste a Mario!", this.entorno.ancho()/2 - 130, this.entorno.alto()/2 + 50);
+                this.entorno.escribirTexto("¡VICTORIA!", this.entorno.ancho() / 2 - 70, this.entorno.alto() / 2);
+                this.entorno.escribirTexto("¡Rescataste a Mario!", this.entorno.ancho() / 2 - 130,
+                        this.entorno.alto() / 2 + 50);
+                this.entorno.escribirTexto("Presiona R para volver a jugar", this.entorno.ancho() / 2 - 180,
+                        this.entorno.alto() / 2 + 100);
             } else {
-                this.entorno.escribirTexto("GAME OVER", this.entorno.ancho()/2 - 80, this.entorno.alto()/2);
-                this.entorno.escribirTexto("Presiona R para reiniciar", this.entorno.ancho()/2 - 140, this.entorno.alto()/2 + 50);
-                
-                if (this.entorno.sePresiono('r') || this.entorno.sePresiono('R')) {
-                    reiniciarJuego();
-                }
+                this.entorno.escribirTexto("GAME OVER", this.entorno.ancho() / 2 - 80, this.entorno.alto() / 2);
+                this.entorno.escribirTexto("Presiona R para reiniciar", this.entorno.ancho() / 2 - 140,
+                        this.entorno.alto() / 2 + 50);
             }
-            return; 
+
+            if (this.entorno.sePresiono('r') || this.entorno.sePresiono('R')) {
+                reiniciarJuego();
+            }
+            return;
         }
-        
-        //Métodos para que la princesa vuelva a reaparecer después de perder una vida
+
+        // Métodos para que la princesa vuelva a reaparecer después de perder una vida
         if (reapareciendo) {
             tiempoReaparecer--;
             if (tiempoReaparecer <= 0) {
@@ -183,7 +199,7 @@ public class Juego extends InterfaceJuego {
             dibujarTodo();
             return;
         }
-        
+
         // Movimiento horizontal
         if (this.entorno.estaPresionada(this.entorno.TECLA_DERECHA) || this.entorno.estaPresionada('d')) {
             this.princesa.moverse(this.velocidad);
@@ -193,7 +209,7 @@ public class Juego extends InterfaceJuego {
             this.princesa.moverse(-this.velocidad);
             moverNivel();
         }
-        
+
         // Salto
         if (this.entorno.sePresiono(this.entorno.TECLA_ARRIBA) || this.entorno.sePresiono('w')) {
             if (!this.princesa.salto && !this.princesa.caida) {
@@ -202,33 +218,34 @@ public class Juego extends InterfaceJuego {
                 this.princesa.velocidadY = -12;
             }
         }
-        
+
         // Gravedad
         if (!this.princesa.salto) {
             this.princesa.velocidadY += 0.8;
         }
-        
+
         this.princesa.y += this.princesa.velocidadY;
         this.princesa.actualColis();
-        
+
         if (this.princesa.salto) {
             this.princesa.ciclos++;
             if (this.princesa.ciclos > 20 || this.princesa.arriba <= 90) {
                 this.princesa.salto = false;
             }
         }
-        
+
         // Colisión de la princesa con las Islas
         boolean enIsla = false;
-        
-        for(Isla[] fila: this.islas) {
-            for(Isla isla: fila) {
-                if(isla != null) {
-                    boolean colisionHorizontal = this.princesa.derecha > isla.izquierda && this.princesa.izquierda < isla.derecha;
+
+        for (Isla[] fila : this.islas) {
+            for (Isla isla : fila) {
+                if (isla != null) {
+                    boolean colisionHorizontal = this.princesa.derecha > isla.izquierda
+                            && this.princesa.izquierda < isla.derecha;
                     double distanciaVertical = Math.abs(this.princesa.abajo - isla.arriba);
-                    
+
                     if (distanciaVertical < 15 && colisionHorizontal && this.princesa.velocidadY >= 0) {
-                        this.princesa.y = isla.arriba - this.princesa.alto/2;
+                        this.princesa.y = isla.arriba - this.princesa.alto / 2;
                         this.princesa.velocidadY = 0;
                         this.princesa.salto = false;
                         this.princesa.caida = false;
@@ -236,10 +253,10 @@ public class Juego extends InterfaceJuego {
                         enIsla = true;
                         break;
                     }
-                    
+
                     distanciaVertical = Math.abs(this.princesa.arriba - isla.abajo);
                     if (distanciaVertical < 15 && colisionHorizontal && this.princesa.velocidadY < 0) {
-                        this.princesa.y = isla.abajo + this.princesa.alto/2;
+                        this.princesa.y = isla.abajo + this.princesa.alto / 2;
                         this.princesa.velocidadY = 0;
                         this.princesa.salto = false;
                         this.princesa.ciclos = 0;
@@ -247,13 +264,14 @@ public class Juego extends InterfaceJuego {
                     }
                 }
             }
-            if(enIsla) break;
+            if (enIsla)
+                break;
         }
-        
+
         if (!enIsla) {
             this.princesa.caida = true;
         }
-        
+
         // ENEMIGOS
         for (int i = 0; i < enemigos.length; i++) {
             if (enemigos[i] != null && enemigos[i].activo) {
@@ -263,12 +281,13 @@ public class Juego extends InterfaceJuego {
                 }
             }
         }
-        
+
         int enemigosActivos = 0;
         for (Enemigo e : enemigos) {
-            if (e != null && e.activo) enemigosActivos++;
+            if (e != null && e.activo)
+                enemigosActivos++;
         }
-        
+
         if (enemigosActivos < minEnemigosPantalla) {
             int cuantosFaltan = minEnemigosPantalla - enemigosActivos;
             for (int j = 0; j < cuantosFaltan; j++) {
@@ -279,71 +298,71 @@ public class Juego extends InterfaceJuego {
                         break;
                     }
                 }
-                
+
                 if (posicionLibre != -1) {
-                    int lado = (int)(Math.random() * 2);
+                    int lado = (int) (Math.random() * 2);
                     double x, vel;
-                    double[] yRandom = {70, 250, 420}; //posiciones donde pueden aparecer los enemigos
-                    double yEnemigo = yRandom[(int)(Math.random() * 3)] + (Math.random() * 70);
+                    double[] yRandom = { 70, 250, 420 }; // posiciones donde pueden aparecer los enemigos
+                    double yEnemigo = yRandom[(int) (Math.random() * 3)] + (Math.random() * 70);
                     if (lado == 0) {
                         x = -30;
-                        vel = 2 + Math.random() * 3;
+                        vel = 1 + Math.random() * 1.5;
                     } else {
                         x = entorno.ancho() + 30;
-                        vel = -2 - Math.random() * 3;
+                        vel = -1 - Math.random() * 1.5;
                     }
-                    
+
                     enemigos[posicionLibre] = new Enemigo(x, yEnemigo, vel, entorno.ancho(), entorno.alto());
                 }
             }
         }
-        
+
         // DISPARO DE LA PRINCESA CON MOUSE
         if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado) {
             int mouseX = this.entorno.mouseX();
             int mouseY = this.entorno.mouseY();
-            
+
             double dx = mouseX - this.princesa.x;
             double dy = mouseY - this.princesa.y;
-            double distancia = Math.sqrt(dx*dx + dy*dy);
-            
+            double distancia = Math.sqrt(dx * dx + dy * dy);
+
             if (distancia > 0) {
                 dx = dx / distancia;
                 dy = dy / distancia;
-                
-                proyectil = new ProyectilPrincesa(this.princesa.x, this.princesa.y - 20, dx, dy, 
-                                          entorno.ancho(), entorno.alto());
+
+                proyectil = new ProyectilPrincesa(this.princesa.x, this.princesa.y - 20, dx, dy,
+                        entorno.ancho(), entorno.alto());
             }
         }
-        
+
         if (proyectil != null) {
             proyectil.mover();
             if (proyectil.estaFueraDePantalla()) {
                 proyectil = null;
             }
         }
-        
+
         // Explosion de la princesa con click derecho
-        if (this.entorno.sePresionoBoton(this.entorno.BOTON_DERECHO) 
-        		&& this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0) {
-        	this.explosion = new ExplosionPrincesa(this.princesa.x, this.princesa.y, entorno);
-        	this.tiempoExplosion = 5;
-        } 
-        
+        if (this.entorno.sePresionoBoton(this.entorno.BOTON_DERECHO)
+                && this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0) {
+            this.explosion = new ExplosionPrincesa(this.princesa.x, this.princesa.y, entorno);
+            this.tiempoExplosion = 5;
+        }
+
         // Disminuye el tiempo para volver a hacer la explosion
-        if(this.tiempoExplosion > 0 && this.entorno.numeroDeTick() % 50 == 0) {
-    		this.tiempoExplosion -= 1;
-    	} 
-        
+        if (this.tiempoExplosion > 0 && this.entorno.numeroDeTick() % 50 == 0) {
+            this.tiempoExplosion -= 1;
+        }
+
         // Comprobacion para mover y detectar colisiones de la explosion
         if (this.explosion != null) {
-        	this.explosion.mover(this.princesa.x, this.princesa.y);
-        	for (int i = 0; i < enemigos.length; i++) {
-        		Enemigo e = enemigos[i];
+            this.explosion.mover(this.princesa.x, this.princesa.y);
+            for (int i = 0; i < enemigos.length; i++) {
+                Enemigo e = enemigos[i];
                 if (e != null && e.activo) {
-                    if (!(this.explosion.abajo <= e.arriba || this.explosion.arriba >= e.abajo || 
-                    		this.explosion.derecha <= e.izquierda || this.explosion.izquierda >= e.derecha)) {
-                    	enemigos[i] = null;
+                    if (!(this.explosion.abajo <= e.arriba || this.explosion.arriba >= e.abajo ||
+                            this.explosion.derecha <= e.izquierda || this.explosion.izquierda >= e.derecha)) {
+                        enemigos[i] = null;
                         enemigosEliminados++;
                         // Verificar si hay que generar una poción (en la posición de la princesa)
                         if (enemigosEliminados >= enemigosParaItem) {
@@ -353,18 +372,18 @@ public class Juego extends InterfaceJuego {
                         break;
                     }
                 }
-        	}
-        	if(this.explosion.fin) { // Desaparecer la explosion
-        		this.explosion = null;
-        	}
+            }
+            if (this.explosion.fin) { // Desaparecer la explosion
+                this.explosion = null;
+            }
         }
-        
+
         // COLISIÓN PRINCESA - ENEMIGO
         for (int i = 0; i < enemigos.length; i++) {
             Enemigo e = enemigos[i];
             if (e != null && e.activo) {
-                if (!(princesa.abajo <= e.arriba || princesa.arriba >= e.abajo || 
-                      princesa.derecha <= e.izquierda || princesa.izquierda >= e.derecha)) {
+                if (!(princesa.abajo <= e.arriba || princesa.arriba >= e.abajo ||
+                        princesa.derecha <= e.izquierda || princesa.izquierda >= e.derecha)) {
                     vidas--;
                     enemigos[i] = null;
                     actualizarCorazones();
@@ -373,14 +392,14 @@ public class Juego extends InterfaceJuego {
                 }
             }
         }
-        
-        // COLISIÓN PROYECTIL - ENEMIGO 
+
+        // COLISIÓN PROYECTIL - ENEMIGO
         if (proyectil != null && proyectil.activo) {
             for (int i = 0; i < enemigos.length; i++) {
                 Enemigo e = enemigos[i];
                 if (e != null && e.activo) {
-                    if (!(proyectil.abajo <= e.arriba || proyectil.arriba >= e.abajo || 
-                          proyectil.derecha <= e.izquierda || proyectil.izquierda >= e.derecha)) {
+                    if (!(proyectil.abajo <= e.arriba || proyectil.arriba >= e.abajo ||
+                            proyectil.derecha <= e.izquierda || proyectil.izquierda >= e.derecha)) {
                         proyectil = null;
                         enemigos[i] = null;
                         enemigosEliminados++;
@@ -394,47 +413,48 @@ public class Juego extends InterfaceJuego {
                 }
             }
         }
-        
-        //COLISIÓN PRINCESA - POCIÓN 
+
+        // COLISIÓN PRINCESA - POCIÓN
         for (int i = 0; i < pociones.length; i++) {
             PocionVida p = pociones[i];
             if (p != null && p.activo) {
-                if (!(princesa.abajo <= p.arriba || princesa.arriba >= p.abajo || 
-                      princesa.derecha <= p.izquierda || princesa.izquierda >= p.derecha)) {
+                if (!(princesa.abajo <= p.arriba || princesa.arriba >= p.abajo ||
+                        princesa.derecha <= p.izquierda || princesa.izquierda >= p.derecha)) {
                     // Dar vida extra
                     vidas++;
-                    if (vidas > 6) vidas = 6;
+                    if (vidas > 6)
+                        vidas = 6;
                     actualizarCorazones();
                     pociones[i] = null;
                 }
             }
         }
-        
-        // CAÍDA AL VACÍO 
+
+        // CAÍDA AL VACÍO
         if (this.princesa.y > this.entorno.alto() + 100) {
             vidas--;
             actualizarCorazones();
             iniciarReaparicion();
         }
-        
-        // VICTORIA 
+
+        // VICTORIA
         if (castillo != null && castillo.activo) {
-            if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo || 
-                  princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
+            if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo ||
+                    princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
                 this.victoria = true;
                 this.juegoTerminado = true;
             }
         }
-        
-        //  DERROTA 
+
+        // DERROTA
         if (this.vidas <= 0) {
             this.juegoTerminado = true;
             this.victoria = false;
         }
-        
+
         dibujarTodo();
-    } 
-    
+    }
+
     public void generarPocion(double x, double y) {
         // Buscar espacio libre en el array de pociones
         for (int i = 0; i < pociones.length; i++) {
@@ -444,9 +464,9 @@ public class Juego extends InterfaceJuego {
             }
         }
     }
-    
+
     public void actualizarCorazones() {
-        for(int i = 0; i < corazones.length; i++) {
+        for (int i = 0; i < corazones.length; i++) {
             if (i < vidas) {
                 corazones[i].activo = true;
             } else {
@@ -454,12 +474,12 @@ public class Juego extends InterfaceJuego {
             }
         }
     }
-    
+
     public void iniciarReaparicion() {
         reapareciendo = true;
         tiempoReaparecer = 20;
     }
-    
+
     public void reiniciarJuego() {
         this.vidas = 6;
         this.juegoTerminado = false;
@@ -470,130 +490,131 @@ public class Juego extends InterfaceJuego {
         this.reapareciendo = false;
         this.primeraVez = true;
         this.fondo.x = this.entorno.ancho() / 2.0;
-        this.enemigosEliminados = 0;
-        this.tiempoExplosion = 0;
-        
+        this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150; // Restaurar posición inicial del fondo
+
         // Limpiar pociones
         for (int i = 0; i < pociones.length; i++) {
             pociones[i] = null;
         }
-        
-        for(int i = 0; i < corazones.length; i++) {
+
+        for (int i = 0; i < corazones.length; i++) {
             corazones[i].activo = true;
         }
-        
+
         // Regenerar islas
         this.islas = new Isla[3][15];
-        
+
         double acumuladorX = 100;
         double ultimaXGrande = 0;
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
                 separacion = 250 + Math.random() * 80; // Primera isla más cerca (250-330)
             } else {
-                separacion = 480 + Math.random() * 120; // Después separación normal
+                separacion = 560 + Math.random() * 50; // Después separación normal
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                this.islas[2][i] = new Isla(xPos, 530, this.entorno, 2);
+                this.islas[2][i] = new Isla(xPos, 560, this.entorno, 1);
                 acumuladorX = xPos;
                 ultimaXGrande = xPos;
             }
         }
-        
+
         acumuladorX = 150;
-        for(int i = 0; i < 10; i++) {
+        double ultimaXMediana = 0;
+        for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
                 separacion = 220 + Math.random() * 80;
             } else {
-                separacion = 350 + Math.random() * 100;
+                separacion = 480 + Math.random() * 70;
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                //double yPos = 350 + (Math.random() * 50 - 25);
-                this.islas[1][i] = new Isla(xPos, 350, this.entorno, 2);
+                // double yPos = 350 + (Math.random() * 50 - 25);
+                this.islas[1][i] = new Isla(xPos, 340, this.entorno, 2);
                 acumuladorX = xPos;
+                ultimaXMediana = xPos;
             }
         }
-        
+
         acumuladorX = 200;
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
                 separacion = 200 + Math.random() * 80;
             } else {
-                separacion = 330 + Math.random() * 100;
+                separacion = 260 + Math.random() * 60;
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                //double yPos = 200 + (Math.random() * 50 - 25);
-                this.islas[0][i] = new Isla(xPos, 200, this.entorno, 2);
+                // double yPos = 200 + (Math.random() * 50 - 25);
+                this.islas[0][i] = new Isla(xPos, 120, this.entorno, 3);
                 acumuladorX = xPos;
             }
         }
-        
-        double posicionCastillo = ultimaXGrande + 350;
+
+        double posicionCastillo = ultimaXMediana;
         if (posicionCastillo > anchoTotalMapa - 150) {
             posicionCastillo = anchoTotalMapa - 150;
         }
-        this.castillo = new Castillo(posicionCastillo, 530, this.entorno);
-        
+        this.castillo = new Castillo(posicionCastillo, 250, this.entorno);
+
         this.princesa.resetearPosicion(this.entorno.ancho() / 2, 500);
-        
+
         for (int i = 0; i < enemigos.length; i++) {
             enemigos[i] = null;
         }
     }
-    
+
     public void dibujarTodo() {
         this.fondo.dibujar();
-        
-        for(Isla[] fila: this.islas) {
-            for(Isla isla: fila) {
-                if(isla != null) {
+
+        for (Isla[] fila : this.islas) {
+            for (Isla isla : fila) {
+                if (isla != null) {
                     isla.dibujar();
                 }
             }
         }
-        
+
         if (castillo != null && castillo.activo) {
             castillo.dibujar(this.entorno);
         }
-        
-        for(Enemigo e: enemigos) {
+
+        for (Enemigo e : enemigos) {
             if (e != null && e.activo) {
                 e.dibujar(this.entorno);
             }
         }
-        
+
         // Dibujar pociones
-        for(PocionVida p: pociones) {
+        for (PocionVida p : pociones) {
             if (p != null && p.activo) {
                 p.dibujar(this.entorno);
             }
         }
-        
+
         if (proyectil != null) {
             proyectil.dibujar(this.entorno);
         }
-        
+
         if (this.explosion != null) {
-        	this.explosion.dibujar(entorno);
+            this.explosion.dibujar(entorno);
         }
-        
+
         if (!reapareciendo) {
             this.princesa.dibujar();
         }
-        
-        for(Corazon c : corazones) {
+
+        for (Corazon c : corazones) {
             c.dibujar(this.entorno);
         }
-        
+
         if (reapareciendo) {
             this.entorno.cambiarFont("Arial", 20, Color.YELLOW);
-            this.entorno.escribirTexto("¡PERDISTE UNA VIDA!", this.entorno.ancho()/2 - 100, this.entorno.alto()/2);
+            this.entorno.escribirTexto("¡PERDISTE UNA VIDA!", this.entorno.ancho() / 2 - 100, this.entorno.alto() / 2);
         }
         this.entorno.cambiarFont("Arial", 14, Color.BLACK);
         this.entorno.escribirTexto("Tiempo para explosion: " + this.tiempoExplosion, 620, 100);
@@ -601,36 +622,44 @@ public class Juego extends InterfaceJuego {
         this.entorno.cambiarFont("Arial", 14, Color.WHITE);
         this.entorno.escribirTexto("Próxima poción: " + (enemigosParaItem - enemigosEliminados) + " enemigos", 20, 100);
     }
-    
+
     public void moverNivel() {
-        if(princesa.x > (this.entorno.ancho() * 2/3)) {
+        if (princesa.x > (this.entorno.ancho() * 2 / 3)) {
             princesa.x -= this.velocidad;
             fondo.x -= this.velocidad;
-            
-            for(Isla[] fila: islas) {
-                for(Isla isla: fila) {
-                    if(isla != null) {
+
+            for (Isla[] fila : islas) {
+                for (Isla isla : fila) {
+                    if (isla != null) {
                         isla.x -= this.velocidad;
                         isla.actualColis();
                     }
                 }
             }
-            
-            if(castillo != null) {
+
+            if (castillo != null) {
                 castillo.x -= this.velocidad;
                 castillo.actualizarColisiones();
             }
-            
+
             // Mover pociones también
-            for(PocionVida p: pociones) {
-                if(p != null) {
+            for (PocionVida p : pociones) {
+                if (p != null) {
                     p.x -= this.velocidad;
                     p.actualizarColisiones();
                 }
             }
+
+            // Mover enemigos también
+            for (Enemigo e : enemigos) {
+                if (e != null && e.activo) {
+                    e.x -= this.velocidad;
+                    e.actualizarColisiones();
+                }
+            }
         }
     }
-    
+
     @SuppressWarnings("unused")
     public static void main(String[] args) {
         Juego juego = new Juego();

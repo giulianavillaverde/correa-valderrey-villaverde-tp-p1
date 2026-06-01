@@ -19,9 +19,14 @@ public class Enemigo {
         this.y = y;
         this.velocidad = velocidad;
         this.activo = true;
-        this.escala = 0.05;
+        this.escala = 0.2;
         
-        this.imagen = Herramientas.cargarImagen("juego/enemigo.png");
+        if(this.velocidad > 1) {
+        	this.imagen = Herramientas.cargarImagen("juego/enemigoDer.gif");
+        } else {
+        	this.imagen = Herramientas.cargarImagen("juego/enemigoIzq.gif");
+        }
+        
         
         if (this.imagen != null) {
             this.ancho = this.imagen.getWidth(null) * this.escala ;

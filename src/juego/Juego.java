@@ -72,7 +72,7 @@ public class Juego extends InterfaceJuego {
             if (i == 0) {
                 separacion = 250 + Math.random() * 80; // Primera isla más cerca (250-330)
             } else {
-                separacion = 480 + Math.random() * 120; // Después separación normal
+                separacion = 480 + Math.random() * 120; // Después separación normal de islas
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
@@ -153,9 +153,10 @@ public class Juego extends InterfaceJuego {
             this.princesa.actualColis();
         }
         
+        //  PANTALLA DE FIN DE JUEGO 
         if (juegoTerminado) {
             this.entorno.cambiarFont("Arial", 30, Color.WHITE);
-            if (this.victoria) {
+            if (victoria) {
                 this.entorno.escribirTexto("¡VICTORIA!", this.entorno.ancho()/2 - 70, this.entorno.alto()/2);
                 this.entorno.escribirTexto("¡Rescataste a Mario!", this.entorno.ancho()/2 - 130, this.entorno.alto()/2 + 50);
             } else {
@@ -166,9 +167,9 @@ public class Juego extends InterfaceJuego {
                     reiniciarJuego();
                 }
             }
-            dibujarTodo();
-            return;
+            return; 
         }
+        
         //Métodos para que la princesa vuelva a reaparecer después de perder una vida
         if (reapareciendo) {
             tiempoReaparecer--;
@@ -343,7 +344,6 @@ public class Juego extends InterfaceJuego {
                     if (!(this.explosion.abajo <= e.arriba || this.explosion.arriba >= e.abajo || 
                     		this.explosion.derecha <= e.izquierda || this.explosion.izquierda >= e.derecha)) {
                     	enemigos[i] = null;
-                        // Aumentar contador de enemigos eliminados
                         enemigosEliminados++;
                         // Verificar si hay que generar una poción (en la posición de la princesa)
                         if (enemigosEliminados >= enemigosParaItem) {
@@ -383,7 +383,6 @@ public class Juego extends InterfaceJuego {
                           proyectil.derecha <= e.izquierda || proyectil.izquierda >= e.derecha)) {
                         proyectil = null;
                         enemigos[i] = null;
-                        // Aumentar contador de enemigos eliminados
                         enemigosEliminados++;
                         // Verificar si hay que generar una poción (en la posición de la princesa)
                         if (enemigosEliminados >= enemigosParaItem) {
@@ -434,7 +433,7 @@ public class Juego extends InterfaceJuego {
         }
         
         dibujarTodo();
-    } //Fin del tick
+    } 
     
     public void generarPocion(double x, double y) {
         // Buscar espacio libre en el array de pociones
@@ -466,11 +465,13 @@ public class Juego extends InterfaceJuego {
         this.juegoTerminado = false;
         this.victoria = false;
         this.proyectil = null;
+        this.explosion = null;
         this.contadorSpawn = 0;
         this.reapareciendo = false;
         this.primeraVez = true;
         this.fondo.x = this.entorno.ancho() / 2.0;
         this.enemigosEliminados = 0;
+        this.tiempoExplosion = 0;
         
         // Limpiar pociones
         for (int i = 0; i < pociones.length; i++) {

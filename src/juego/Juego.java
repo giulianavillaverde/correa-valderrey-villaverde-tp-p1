@@ -1,7 +1,6 @@
 package juego;
 
 import entorno.Entorno;
-import entorno.Herramientas;
 import entorno.InterfaceJuego;
 import java.awt.Color;
 import java.awt.Image;
@@ -72,7 +71,6 @@ public class Juego extends InterfaceJuego {
 
         // NIVEL 2: ISLAS GRANDES (piso) - La primera isla aparece cerca
         double acumuladorX = 100; // Empieza más cerca
-        double ultimaXGrande = 0;
         for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
@@ -84,7 +82,6 @@ public class Juego extends InterfaceJuego {
             if (xPos < anchoTotalMapa - 400) {
                 this.islas[2][i] = new Isla(xPos, 560, this.entorno, 1);
                 acumuladorX = xPos;
-                ultimaXGrande = xPos;
             }
         }
 
@@ -623,7 +620,6 @@ public class Juego extends InterfaceJuego {
         this.islas = new Isla[3][15];
 
         double acumuladorX = 100;
-        double ultimaXGrande = 0;
         for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
@@ -635,7 +631,6 @@ public class Juego extends InterfaceJuego {
             if (xPos < anchoTotalMapa - 400) {
                 this.islas[2][i] = new Isla(xPos, 560, this.entorno, 1);
                 acumuladorX = xPos;
-                ultimaXGrande = xPos;
             }
         }
 

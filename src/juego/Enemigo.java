@@ -53,40 +53,7 @@ public class Enemigo {
             actualizarColisiones();
         }
     }
-    
-    // Método para mover con colisión de islas (no atraviesan)
-    public void moverConIslas(Isla[][] islas) {
-        if (!activo) return;
-        
-        double nuevaX = x + velocidad;
-        
-        // Verificar colisión con islas
-        boolean colision = false;
-        for(Isla[] fila : islas) {
-            for(Isla isla : fila) {
-                if(isla != null) {
-                    double tempIzquierda = nuevaX - ancho/2;
-                    double tempDerecha = nuevaX + ancho/2;
-                    
-                    if (tempDerecha > isla.izquierda && tempIzquierda < isla.derecha &&
-                        abajo > isla.arriba && arriba < isla.abajo) {
-                        colision = true;
-                        break;
-                    }
-                }
-            }
-            if(colision) break;
-        }
-        
-        if (colision) {
-            velocidad = -velocidad;
-        } else {
-            x = nuevaX;
-        }
-        
-        actualizarColisiones();
-    }
-    
+     
     public void actualizarColisiones() {
         this.arriba = y - alto/2;
         this.abajo = y + alto/2;

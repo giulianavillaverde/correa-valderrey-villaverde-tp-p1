@@ -46,7 +46,7 @@ public class Juego extends InterfaceJuego {
         this.victoria = false;
         this.contadorSpawn = 0;
         this.intervaloMinEnemigos = 40;
-        this.minEnemigosPantalla = 3;
+        this.minEnemigosPantalla = 5;
         this.proyectil = null;
         this.anchoTotalMapa = 4000;
         this.reapareciendo = false;
@@ -155,7 +155,7 @@ public class Juego extends InterfaceJuego {
         
         if (juegoTerminado) {
             this.entorno.cambiarFont("Arial", 30, Color.WHITE);
-            if (victoria) {
+            if (this.victoria) {
                 this.entorno.escribirTexto("¡VICTORIA!", this.entorno.ancho()/2 - 70, this.entorno.alto()/2);
                 this.entorno.escribirTexto("¡Rescataste a Mario!", this.entorno.ancho()/2 - 130, this.entorno.alto()/2 + 50);
             } else {
@@ -253,10 +253,10 @@ public class Juego extends InterfaceJuego {
             this.princesa.caida = true;
         }
         
-        // ENEMIGOS (con colisión de islas)
+        // ENEMIGOS
         for (int i = 0; i < enemigos.length; i++) {
             if (enemigos[i] != null && enemigos[i].activo) {
-                enemigos[i].moverConIslas(this.islas);
+                enemigos[i].mover();
                 if (enemigos[i].estaFueraDePantalla()) {
                     enemigos[i] = null;
                 }
@@ -354,12 +354,12 @@ public class Juego extends InterfaceJuego {
                     }
                 }
         	}
-        	if(this.explosion.fin) { //Desaparecer la explosion
+        	if(this.explosion.fin) { // Desaparecer la explosion
         		this.explosion = null;
         	}
         }
         
-        // ==================== COLISIÓN PRINCESA - ENEMIGO ====================
+        // COLISIÓN PRINCESA - ENEMIGO
         for (int i = 0; i < enemigos.length; i++) {
             Enemigo e = enemigos[i];
             if (e != null && e.activo) {

@@ -213,7 +213,7 @@ public class Juego extends InterfaceJuego {
         
         if (this.princesa.salto) {
             this.princesa.ciclos++;
-            if (this.princesa.ciclos > 20) {
+            if (this.princesa.ciclos > 20 || this.princesa.arriba <= 90) {
                 this.princesa.salto = false;
             }
         }

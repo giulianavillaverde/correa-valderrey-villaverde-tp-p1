@@ -23,7 +23,7 @@ public class Isla {
 			this.escala = 0.3; // Grande
 			this.imagen = Herramientas.cargarImagen("juego/islaGrande.png");
 		} else if (tipo == 2) {
-			this.escala = 0.25; // Mediana
+			this.escala = 0.22; // Mediana
 			this.imagen = Herramientas.cargarImagen("juego/islaMediana.png");
 		} else {
 			this.escala = 0.15; // Chica

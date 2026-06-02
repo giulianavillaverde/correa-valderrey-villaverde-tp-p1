@@ -26,13 +26,17 @@ public class Enemigo2 {
         this.yBase = y;
         this.velocidad = velocidad;
         this.activo = true;
-        this.escala = 0.13;
+        this.escala = 0.27;
 
         this.amplitudOndulacion = 18; // cuántos píxeles sube/baja
         this.frecuenciaOndulacion = 0.06; // qué tan rápido oscila
         this.tickContador = 0;
 
-        this.imagen = Herramientas.cargarImagen("juego/enemigo2.gif");
+        if (this.velocidad > 1) {
+            this.imagen = Herramientas.cargarImagen("juego/enemigoDer2.gif");
+        } else {
+            this.imagen = Herramientas.cargarImagen("juego/enemigoIzq2.gif");
+        }
 
         if (this.imagen != null) {
             this.ancho = this.imagen.getWidth(null) * this.escala;

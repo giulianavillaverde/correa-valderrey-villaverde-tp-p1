@@ -446,8 +446,8 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // DISPARO (solo si no está en pelea con el jefe)
-        if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado && !enPeleaJefe) {
+        // DISPARO (también durante la pelea con el jefe)
+        if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado) {
             int mouseX = this.entorno.mouseX();
             int mouseY = this.entorno.mouseY();
             double dx = mouseX - this.princesa.x;
@@ -618,12 +618,9 @@ public class Juego extends InterfaceJuego {
             if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo ||
                     princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
                 enPeleaJefe = true;
-                // Guardar la posición del castillo antes de desactivarlo
                 double posX = castillo.x;
                 double posY = castillo.y;
-                // Desactivar el castillo (desaparece)
                 castillo.activo = false;
-                // Crear jefe en la misma posición del castillo
                 jefe = new JefeFinal(posX, posY, this.entorno, this.vidas);
             }
         }
@@ -659,7 +656,7 @@ public class Juego extends InterfaceJuego {
                 }
             }
 
-            // Colisión proyectil del jefe - princesa (solo esto quita vidas)
+            // Colisión proyectil del jefe - princesa
             for (int i = 0; i < proyectilesJefe.length; i++) {
                 ProyectilJefe pj = proyectilesJefe[i];
                 if (pj != null && pj.activo) {
@@ -921,8 +918,7 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // Solo dibujar castillo si no está en pelea
-        if (castillo != null && castillo.activo && !enPeleaJefe) {
+        if (castillo != null && castillo.activo) {
             castillo.dibujar(this.entorno);
         }
 
@@ -996,8 +992,7 @@ public class Juego extends InterfaceJuego {
                 }
             }
 
-            // Solo mover castillo si no está en pelea
-            if (castillo != null && !enPeleaJefe) {
+            if (castillo != null) {
                 castillo.x -= this.velocidad;
                 castillo.actualizarColisiones();
             }

@@ -22,12 +22,12 @@ public class JefeFinal {
     public JefeFinal(double x, double y, Entorno e, int vidasPrincesa) {
         this.x = x;
         this.y = y;
-        this.escala = 0.18; // Apenas más grande que la princesa (0.13)
+        this.escala = 0.18;
         this.vidasMaximas = vidasPrincesa;
         this.vidas = this.vidasMaximas;
         this.activo = true;
         this.contadorAtaque = 0;
-        this.intervaloAtaque = 60;
+        this.intervaloAtaque = 120; // Tiempo de disparo hacia la princesa
         
         this.imagen = Herramientas.cargarImagen("juego/JefeFinal.png");
         

@@ -30,6 +30,7 @@ public class Princesa {
 
 		this.mirandoIzquierda = false;
 
+		// tamaño de la princesa
 		if (this.imagenDerecha != null) {
 			this.alto = this.imagenDerecha.getHeight(null) * this.escala;
 			this.ancho = this.imagenDerecha.getWidth(null) * this.escala;
@@ -51,6 +52,7 @@ public class Princesa {
 		}
 	}
 
+	// movimiento de la princesa
 	public void moverse(double velocidad) {
 		double proximaX = this.x + velocidad;
 		if (proximaX > this.ancho / 2 && proximaX < this.e.ancho() - this.ancho / 2) {
@@ -58,6 +60,7 @@ public class Princesa {
 			actualColis();
 		}
 
+		// detecta si la princesa mira a la izquierda o derecha
 		if (velocidad < 0) {
 			this.mirandoIzquierda = true;
 		}
@@ -66,6 +69,7 @@ public class Princesa {
 		}
 	}
 
+	// movimiento vertical de la princesa
 	public void movVertical() {
 		int maxCiclos = 20;
 		double gravedad = 0.8;
@@ -82,6 +86,7 @@ public class Princesa {
 			velocidadY += gravedad;
 		}
 
+		// actualiza la posicion de la princesa
 		this.y += velocidadY;
 		actualColis();
 
@@ -92,6 +97,7 @@ public class Princesa {
 		}
 	}
 
+	// inicia el salto
 	public void iniciarSalto() {
 		if (!this.caida && !this.salto) {
 			this.salto = true;
@@ -107,6 +113,7 @@ public class Princesa {
 		this.izquierda = this.x - ancho / 2;
 	}
 
+	// resetea la posicion de la princesa
 	public void resetearPosicion(double x, double y) {
 		this.x = x;
 		this.y = y;

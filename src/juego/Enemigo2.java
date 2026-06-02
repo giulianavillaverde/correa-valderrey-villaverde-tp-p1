@@ -62,6 +62,7 @@ public class Enemigo2 {
         }
     }
 
+    // movimiento del enemigo
     public void mover() {
         if (activo) {
             tickContador++;

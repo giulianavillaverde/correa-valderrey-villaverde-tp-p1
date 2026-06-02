@@ -11,26 +11,29 @@ public class Castillo {
     Image imagen;
     boolean activo;
     double arriba, abajo, izquierda, derecha;
-    
+
+    // Constructor del castillo
     public Castillo(double x, double y, Entorno e) {
         this.x = x;
         this.y = y;
         this.escala = 0.20;
         this.activo = true;
-        
+
         this.imagen = Herramientas.cargarImagen("juego/castillo.png");
-        
+
         this.ancho = this.imagen.getWidth(null) * this.escala;
         this.alto = this.imagen.getHeight(null) * this.escala;
-        
+
         actualizarColisiones();
     }
-    
+
     public void dibujar(Entorno e) {
-        if (!activo) return;
+        if (!activo)
+            return;
         e.dibujarImagen(imagen, this.x, this.y, 0, this.escala);
     }
-    
+
+    // Método para actualizar las colisiones del castillo
     public void actualizarColisiones() {
         this.arriba = this.y - this.alto / 2;
         this.abajo = this.y + this.alto / 2;

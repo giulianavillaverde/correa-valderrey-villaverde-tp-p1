@@ -55,6 +55,11 @@ public class Juego extends InterfaceJuego {
     double botonReiniciarX, botonReiniciarY;
     double botonAncho, botonAlto;
 
+    // Jefe Final
+    JefeFinal jefe;
+    ProyectilJefe[] proyectilesJefe;
+    boolean enPeleaJefe;
+
     Juego() {
         this.entorno = new Entorno(this, "Super Elizabeth Sis", 800, 600);
 
@@ -79,6 +84,11 @@ public class Juego extends InterfaceJuego {
         this.pociones = new PocionVida[10];
         this.enemigosEliminados = 0;
         this.enemigosParaItem = 4;
+
+        // Inicializar jefe
+        this.proyectilesJefe = new ProyectilJefe[30];
+        this.enPeleaJefe = false;
+        this.jefe = null;
 
         // Cargar imágenes
         this.fondoMenu = Herramientas.cargarImagen("juego/menu.jpg");
@@ -216,7 +226,7 @@ public class Juego extends InterfaceJuego {
             this.princesa.velocidadY = 0;
             this.princesa.caida = false;
             this.princesa.salto = false;
-            this.princesa.actualColis(); // actualiza sus hitboxes
+            this.princesa.actualColis();
         }
 
         // Reaparecer después de perder una vida
@@ -275,7 +285,6 @@ public class Juego extends InterfaceJuego {
                     boolean colisionHorizontal = this.princesa.derecha > isla.izquierda
                             && this.princesa.izquierda < isla.derecha;
 
-                    // evalua colision de caida
                     double distanciaVertical = Math.abs(this.princesa.abajo - isla.arriba);
 
                     if (distanciaVertical < 15 && colisionHorizontal && this.princesa.velocidadY >= 0) {
@@ -288,13 +297,12 @@ public class Juego extends InterfaceJuego {
                         break;
                     }
 
-                    // evalua colision desde abajo (chocar cabeza con una isla)
                     distanciaVertical = Math.abs(this.princesa.arriba - isla.abajo);
                     if (distanciaVertical < 15 && colisionHorizontal && this.princesa.velocidadY < 0) {
                         this.princesa.y = isla.abajo + this.princesa.alto / 2;
                         this.princesa.velocidadY = 0;
                         this.princesa.salto = false;
-                        this.princesa.ciclos = 0; // cancela salto
+                        this.princesa.ciclos = 0;
                         this.princesa.actualColis();
                     }
                 }
@@ -312,7 +320,6 @@ public class Juego extends InterfaceJuego {
             if (enemigos[i] != null && enemigos[i].activo) {
                 enemigos[i].mover();
 
-                // Colisión con islas
                 for (Isla[] fila : this.islas) {
                     for (Isla isla : fila) {
                         if (isla != null) {
@@ -330,14 +337,14 @@ public class Juego extends InterfaceJuego {
                 }
             }
         }
-        // reposicion automatica de enemigos tipo 1
+
         int enemigosActivos = 0;
         for (Enemigo e : enemigos) {
             if (e != null && e.activo)
                 enemigosActivos++;
         }
 
-        if (enemigosActivos < minEnemigosPantalla) {
+        if (enemigosActivos < minEnemigosPantalla && !enPeleaJefe) {
             int cuantosFaltan = minEnemigosPantalla - enemigosActivos;
             for (int j = 0; j < cuantosFaltan; j++) {
                 int posicionLibre = -1;
@@ -348,7 +355,7 @@ public class Juego extends InterfaceJuego {
                     }
                 }
                 if (posicionLibre != -1) {
-                    int lado = (int) (Math.random() * 2); // define aleatoriamente si aparece del lado izq o derecho
+                    int lado = (int) (Math.random() * 2);
                     double x, vel;
                     if (lado == 0) {
                         x = -30;
@@ -358,7 +365,6 @@ public class Juego extends InterfaceJuego {
                         vel = -1 - Math.random() * 1.5;
                     }
 
-                    // altura predefinidas donde pueden aparecer los enemigos
                     double[] yRandom = { 50, 230, 450 };
                     double yEnemigo = -1;
                     for (int intento = 0; intento < 20; intento++) {
@@ -381,7 +387,6 @@ public class Juego extends InterfaceJuego {
             if (enemigos2[i] != null && enemigos2[i].activo) {
                 enemigos2[i].mover();
 
-                // Colisión con islas
                 for (Isla[] fila : this.islas) {
                     for (Isla isla : fila) {
                         if (isla != null) {
@@ -400,14 +405,13 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // reposicion automatica de enemigos tipo 2
         int enemigos2Activos = 0;
         for (Enemigo2 e2 : enemigos2) {
             if (e2 != null && e2.activo)
                 enemigos2Activos++;
         }
 
-        if (enemigos2Activos < 2) {
+        if (enemigos2Activos < 2 && !enPeleaJefe) {
             int posLibre2 = -1;
             for (int i = 0; i < enemigos2.length; i++) {
                 if (enemigos2[i] == null) {
@@ -417,7 +421,7 @@ public class Juego extends InterfaceJuego {
             }
 
             if (posLibre2 != -1) {
-                int lado2 = (int) (Math.random() * 2); // elige aleatoriamente si aparece del lado izq o derecho
+                int lado2 = (int) (Math.random() * 2);
                 double x2, vel2;
                 if (lado2 == 0) {
                     x2 = -30;
@@ -427,7 +431,6 @@ public class Juego extends InterfaceJuego {
                     vel2 = -0.6 - Math.random() * 0.7;
                 }
 
-                // altura predefinidas donde pueden aparecer los enemigos tipo 2
                 double[] yRandom2 = { 50, 230, 450 };
                 double yEnemigo2 = -1;
                 for (int intento = 0; intento < 20; intento++) {
@@ -443,8 +446,8 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // DISPARO
-        if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado) {
+        // DISPARO (solo si no está en pelea con el jefe)
+        if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO) && proyectil == null && !juegoTerminado && !enPeleaJefe) {
             int mouseX = this.entorno.mouseX();
             int mouseY = this.entorno.mouseY();
             double dx = mouseX - this.princesa.x;
@@ -458,7 +461,6 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // movimiento del disparo
         if (proyectil != null) {
             proyectil.mover();
             if (proyectil.estaFueraDePantalla()) {
@@ -466,23 +468,20 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // EXPLOSIÓN
+        // EXPLOSIÓN (solo si no está en pelea con el jefe)
         if (this.entorno.sePresionoBoton(this.entorno.BOTON_DERECHO)
-                && this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0) {
+                && this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0 && !enPeleaJefe) {
             this.explosion = new ExplosionPrincesa(this.princesa.x, this.princesa.y, entorno);
             this.tiempoExplosion = 5;
         }
 
-        // tiempo de espera entre explosiones
         if (this.tiempoExplosion > 0 && this.entorno.numeroDeTick() % 50 == 0) {
             this.tiempoExplosion -= 1;
         }
 
-        // procesamiento del daño en su area de explosion
         if (this.explosion != null) {
             this.explosion.mover(this.princesa.x, this.princesa.y);
 
-            // colisiones de la explosion con enemigos tipo 1
             for (int i = 0; i < enemigos.length; i++) {
                 Enemigo e = enemigos[i];
                 if (e != null && e.activo) {
@@ -491,7 +490,6 @@ public class Juego extends InterfaceJuego {
                         enemigos[i] = null;
                         enemigosEliminados++;
 
-                        // si se eliminaron X enemigos, se genera una poción
                         if (enemigosEliminados >= enemigosParaItem) {
                             generarPocion(this.princesa.x + 100, this.princesa.y - 50);
                             enemigosEliminados = 0;
@@ -500,7 +498,6 @@ public class Juego extends InterfaceJuego {
                     }
                 }
             }
-            // colisiones de la explosion con enemigos tipo 2
             for (int i = 0; i < enemigos2.length; i++) {
                 Enemigo2 e2 = enemigos2[i];
                 if (e2 != null && e2.activo) {
@@ -537,7 +534,6 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // daño (colisiones con enemigos tipo 2)
         for (int i = 0; i < enemigos2.length; i++) {
             Enemigo2 e2 = enemigos2[i];
             if (e2 != null && e2.activo) {
@@ -575,7 +571,6 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // colisiones de los proyectiles contra los enemigos tipo 2
         if (proyectil != null && proyectil.activo) {
             for (int i = 0; i < enemigos2.length; i++) {
                 Enemigo2 e2 = enemigos2[i];
@@ -602,7 +597,7 @@ public class Juego extends InterfaceJuego {
                 if (!(princesa.abajo <= p.arriba || princesa.arriba >= p.abajo ||
                         princesa.derecha <= p.izquierda || princesa.izquierda >= p.derecha)) {
                     vidas++;
-                    if (vidas > 6) // limite de vidas maximas
+                    if (vidas > 6)
                         vidas = 6;
                     actualizarCorazones();
                     pociones[i] = null;
@@ -617,10 +612,83 @@ public class Juego extends InterfaceJuego {
             iniciarReaparicion();
         }
 
-        // VICTORIA
-        if (castillo != null && castillo.activo) {
+        // ==================== PELEA CON EL JEFE FINAL ====================
+        // Activar pelea al tocar el castillo
+        if (!enPeleaJefe && castillo != null && castillo.activo) {
             if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo ||
                     princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
+                enPeleaJefe = true;
+                // Guardar la posición del castillo antes de desactivarlo
+                double posX = castillo.x;
+                double posY = castillo.y;
+                // Desactivar el castillo (desaparece)
+                castillo.activo = false;
+                // Crear jefe en la misma posición del castillo
+                jefe = new JefeFinal(posX, posY, this.entorno, this.vidas);
+            }
+        }
+
+        // Lógica de la pelea con el jefe
+        if (enPeleaJefe && jefe != null && jefe.isActivo()) {
+
+            // Mover jefe hacia la princesa
+            jefe.moverHacia(princesa.x);
+
+            // El jefe ataca cada cierto tiempo
+            if (jefe.puedeAtacar()) {
+                int posLibre = -1;
+                for (int i = 0; i < proyectilesJefe.length; i++) {
+                    if (proyectilesJefe[i] == null) {
+                        posLibre = i;
+                        break;
+                    }
+                }
+                if (posLibre != -1) {
+                    proyectilesJefe[posLibre] = new ProyectilJefe(jefe.x, jefe.y, princesa.x, princesa.y,
+                            entorno.ancho(), entorno.alto());
+                }
+            }
+
+            // Mover proyectiles del jefe
+            for (int i = 0; i < proyectilesJefe.length; i++) {
+                if (proyectilesJefe[i] != null && proyectilesJefe[i].activo) {
+                    proyectilesJefe[i].mover();
+                    if (proyectilesJefe[i].estaFueraDePantalla()) {
+                        proyectilesJefe[i] = null;
+                    }
+                }
+            }
+
+            // Colisión proyectil del jefe - princesa (solo esto quita vidas)
+            for (int i = 0; i < proyectilesJefe.length; i++) {
+                ProyectilJefe pj = proyectilesJefe[i];
+                if (pj != null && pj.activo) {
+                    if (!(princesa.abajo <= pj.arriba || princesa.arriba >= pj.abajo ||
+                            princesa.derecha <= pj.izquierda || princesa.izquierda >= pj.derecha)) {
+                        proyectilesJefe[i] = null;
+                        vidas--;
+                        actualizarCorazones();
+                        iniciarReaparicion();
+                        if (vidas <= 0) {
+                            this.juegoTerminado = true;
+                            this.victoria = false;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Colisión proyectil de la princesa - jefe
+            if (proyectil != null && proyectil.activo) {
+                if (!(proyectil.abajo <= jefe.arriba || proyectil.arriba >= jefe.abajo ||
+                        proyectil.derecha <= jefe.izquierda || proyectil.izquierda >= jefe.derecha)) {
+                    proyectil = null;
+                    jefe.recibirDanio();
+                }
+            }
+
+            // Si el jefe muere, ganar el juego
+            if (!jefe.isActivo()) {
                 this.victoria = true;
                 this.juegoTerminado = true;
             }
@@ -635,7 +703,6 @@ public class Juego extends InterfaceJuego {
         dibujarTodo();
     }
 
-    // resetea las variables de juego para una nueva partida desde el menu
     public void iniciarPartida() {
         this.vidas = 6;
         this.juegoTerminado = false;
@@ -649,6 +716,11 @@ public class Juego extends InterfaceJuego {
         this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150;
         this.enemigosEliminados = 0;
         this.tiempoExplosion = 0;
+        this.enPeleaJefe = false;
+        this.jefe = null;
+        for (int i = 0; i < proyectilesJefe.length; i++) {
+            proyectilesJefe[i] = null;
+        }
 
         for (int i = 0; i < pociones.length; i++) {
             pociones[i] = null;
@@ -669,7 +741,6 @@ public class Juego extends InterfaceJuego {
         }
     }
 
-    // resetea todo el nivel volviendo a generar los enemigos e islas
     public void reiniciarJuego() {
         this.vidas = 6;
         this.juegoTerminado = false;
@@ -679,13 +750,17 @@ public class Juego extends InterfaceJuego {
         this.contadorSpawn = 0;
         this.reapareciendo = false;
         this.primeraVez = true;
-        this.menuActivo = false; // No volver al menú
+        this.menuActivo = false;
         this.fondo.x = this.entorno.ancho() / 2.0;
         this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150;
         this.enemigosEliminados = 0;
         this.tiempoExplosion = 0;
+        this.enPeleaJefe = false;
+        this.jefe = null;
+        for (int i = 0; i < proyectilesJefe.length; i++) {
+            proyectilesJefe[i] = null;
+        }
 
-        // Limpiar pociones
         for (int i = 0; i < pociones.length; i++) {
             pociones[i] = null;
         }
@@ -694,7 +769,6 @@ public class Juego extends InterfaceJuego {
             corazones[i].activo = true;
         }
 
-        // bucle de regeneracion completa del mapa de plataformas
         this.islas = new Isla[3][15];
 
         double acumuladorX = 100;
@@ -750,7 +824,6 @@ public class Juego extends InterfaceJuego {
         }
         this.castillo = new Castillo(posicionCastillo, 250, this.entorno);
 
-        // Posicionar princesa sobre la primera isla grande
         for (Isla isla : this.islas[2]) {
             if (isla != null) {
                 this.princesa.x = isla.x;
@@ -772,7 +845,6 @@ public class Juego extends InterfaceJuego {
         }
     }
 
-    // dibuja el menu de juego
     public void dibujarMenu() {
         if (fondoMenu != null) {
             this.entorno.dibujarImagen(fondoMenu, this.entorno.ancho() / 2, this.entorno.alto() / 2, 0, 1.0);
@@ -789,7 +861,6 @@ public class Juego extends InterfaceJuego {
         }
     }
 
-    // dibuja la pantalla de fin de juego
     public void dibujarFinJuego() {
         if (victoria && victoriaImage != null) {
             this.entorno.dibujarImagen(victoriaImage, this.entorno.ancho() / 2, this.entorno.alto() / 2, 0, 0.35);
@@ -797,14 +868,12 @@ public class Juego extends InterfaceJuego {
             this.entorno.dibujarImagen(gameOverImage, this.entorno.ancho() / 2, this.entorno.alto() / 2, 0, 0.35);
         }
 
-        // dibuja el boton de reiniciar y detecta si se presiono
         if (botonReiniciar != null) {
             double centroBotonX = botonReiniciarX + botonAncho / 2;
             double centroBotonY = botonReiniciarY + botonAlto / 2;
             this.entorno.dibujarImagen(botonReiniciar, centroBotonX, centroBotonY, 0, 0.28);
         }
 
-        // Detectar click en el botón REINICIAR
         if (this.entorno.sePresionoBoton(this.entorno.BOTON_IZQUIERDO)) {
             int mouseX = this.entorno.mouseX();
             int mouseY = this.entorno.mouseY();
@@ -817,7 +886,6 @@ public class Juego extends InterfaceJuego {
         }
     }
 
-    // genera una pocion en la posicion (x, y)
     public void generarPocion(double x, double y) {
         for (int i = 0; i < pociones.length; i++) {
             if (pociones[i] == null) {
@@ -827,7 +895,6 @@ public class Juego extends InterfaceJuego {
         }
     }
 
-    // actualiza los corazones segun las vidas
     public void actualizarCorazones() {
         for (int i = 0; i < corazones.length; i++) {
             if (i < vidas) {
@@ -838,7 +905,6 @@ public class Juego extends InterfaceJuego {
         }
     }
 
-    // inicia el proceso de espera tras perder una vida
     public void iniciarReaparicion() {
         reapareciendo = true;
         tiempoReaparecer = 20;
@@ -855,7 +921,8 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        if (castillo != null && castillo.activo) {
+        // Solo dibujar castillo si no está en pelea
+        if (castillo != null && castillo.activo && !enPeleaJefe) {
             castillo.dibujar(this.entorno);
         }
 
@@ -885,7 +952,18 @@ public class Juego extends InterfaceJuego {
             this.explosion.dibujar(entorno);
         }
 
-        // solo dibuja a la princesa si no esta en proceso de muerte/spawn
+        // Dibujar jefe si está en pelea
+        if (enPeleaJefe && jefe != null && jefe.isActivo()) {
+            jefe.dibujar(this.entorno);
+            jefe.dibujarCorazones(this.entorno);
+
+            for (ProyectilJefe pj : proyectilesJefe) {
+                if (pj != null && pj.activo) {
+                    pj.dibujar(this.entorno);
+                }
+            }
+        }
+
         if (!reapareciendo) {
             this.princesa.dibujar();
         }
@@ -904,8 +982,6 @@ public class Juego extends InterfaceJuego {
         this.entorno.escribirTexto("Próxima poción: " + (enemigosParaItem - enemigosEliminados) + " enemigos", 20, 100);
     }
 
-    // mueve el fondo, enemigos, pociones, castillo y enemigos cuando la princesa
-    // avanza
     public void moverNivel() {
         if (princesa.x > (this.entorno.ancho() * 2 / 3)) {
             princesa.x -= this.velocidad;
@@ -920,7 +996,8 @@ public class Juego extends InterfaceJuego {
                 }
             }
 
-            if (castillo != null) {
+            // Solo mover castillo si no está en pelea
+            if (castillo != null && !enPeleaJefe) {
                 castillo.x -= this.velocidad;
                 castillo.actualizarColisiones();
             }
@@ -945,10 +1022,21 @@ public class Juego extends InterfaceJuego {
                     e2.actualizarColisiones();
                 }
             }
+
+            // Mover jefe y sus proyectiles si está en pelea
+            if (enPeleaJefe && jefe != null) {
+                jefe.x -= this.velocidad;
+                jefe.actualizarColisiones();
+                for (ProyectilJefe pj : proyectilesJefe) {
+                    if (pj != null) {
+                        pj.x -= this.velocidad;
+                        pj.actualizarColisiones();
+                    }
+                }
+            }
         }
     }
 
-    // compara coordenadas de spawn propuestas contra las islas y enemigos
     public boolean hayColisionAlSpawn(double xCandidato, double yCandidato, double separacionMinima) {
         for (Enemigo e : enemigos) {
             if (e != null && e.activo) {
@@ -963,7 +1051,6 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // Evitar que aparezcan a la misma altura que las islas
         for (Isla[] fila : islas) {
             for (Isla isla : fila) {
                 if (isla != null) {

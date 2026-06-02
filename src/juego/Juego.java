@@ -162,8 +162,6 @@ public class Juego extends InterfaceJuego {
         // PANTALLA DE FIN DE JUEGO
         if (juegoTerminado) {
             if (victoria && this.fondoVictoria != null) {
-                // Dibuja el gif de fondo centrado en la pantalla con escala 1.0 (podés ajustar
-                // este 1.0 si queda chico/grande)
                 this.entorno.dibujarImagen(this.fondoVictoria, this.entorno.ancho() / 2, this.entorno.alto() / 2, 0,
                         1.0);
             }
@@ -304,7 +302,6 @@ public class Juego extends InterfaceJuego {
                     int lado = (int) (Math.random() * 2);
                     double x, vel;
                     double[] yRandom = { 70, 250, 420 };
-                    // Intentar hasta 10 veces encontrar una posición Y sin superposición
                     double yEnemigo = -1;
                     for (int intento = 0; intento < 10; intento++) {
                         double yCandidata = yRandom[(int) (Math.random() * 3)] + (Math.random() * 70);
@@ -314,7 +311,7 @@ public class Juego extends InterfaceJuego {
                         }
                     }
                     if (yEnemigo == -1)
-                        break; // No hay posición libre, esperar al siguiente tick
+                        break;
                     if (lado == 0) {
                         x = -30;
                         vel = 1 + Math.random() * 1.5;
@@ -328,7 +325,7 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // ENEMIGOS (tipo 2) - quitan 2 vidas, se mueven ondulando
+        // ENEMIGOS (tipo 2)
         for (int i = 0; i < enemigos2.length; i++) {
             if (enemigos2[i] != null && enemigos2[i].activo) {
                 enemigos2[i].mover();
@@ -357,7 +354,6 @@ public class Juego extends InterfaceJuego {
                 int lado2 = (int) (Math.random() * 2);
                 double x2, vel2;
                 double[] yRandom2 = { 70, 250, 420 };
-                // Intentar hasta 10 veces encontrar una posición Y sin superposición
                 double yEnemigo2 = -1;
                 for (int intento = 0; intento < 10; intento++) {
                     double yCandidata2 = yRandom2[(int) (Math.random() * 3)] + (Math.random() * 70);
@@ -367,7 +363,7 @@ public class Juego extends InterfaceJuego {
                     }
                 }
                 if (yEnemigo2 == -1)
-                    yEnemigo2 = 70 + Math.random() * 350; // fallback
+                    yEnemigo2 = 70 + Math.random() * 350;
                 if (lado2 == 0) {
                     x2 = -30;
                     vel2 = 0.6 + Math.random() * 0.7;
@@ -427,14 +423,13 @@ public class Juego extends InterfaceJuego {
                         enemigos[i] = null;
                         enemigosEliminados++;
                         if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x, this.princesa.y);
+                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
                             enemigosEliminados = 0;
                         }
                         break;
                     }
                 }
             }
-            // Explosion también elimina Enemigo2
             for (int i = 0; i < enemigos2.length; i++) {
                 Enemigo2 e2 = enemigos2[i];
                 if (e2 != null && e2.activo) {
@@ -443,14 +438,14 @@ public class Juego extends InterfaceJuego {
                         enemigos2[i] = null;
                         enemigosEliminados++;
                         if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x, this.princesa.y);
+                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
                             enemigosEliminados = 0;
                         }
                         break;
                     }
                 }
             }
-            if (this.explosion.fin) { // Desaparecer la explosion
+            if (this.explosion.fin) {
                 this.explosion = null;
             }
         }
@@ -471,7 +466,7 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // Colision pricesa - Enemigo2 (tipo 2, quita 2 vidas)
+        // Colision princesa - Enemigo2 (tipo 2)
         for (int i = 0; i < enemigos2.length; i++) {
             Enemigo2 e2 = enemigos2[i];
             if (e2 != null && e2.activo) {
@@ -500,7 +495,7 @@ public class Juego extends InterfaceJuego {
                         enemigos[i] = null;
                         enemigosEliminados++;
                         if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x, this.princesa.y);
+                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
                             enemigosEliminados = 0;
                         }
                         break;
@@ -520,7 +515,7 @@ public class Juego extends InterfaceJuego {
                         enemigos2[i] = null;
                         enemigosEliminados++;
                         if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x, this.princesa.y);
+                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
                             enemigosEliminados = 0;
                         }
                         break;
@@ -535,7 +530,6 @@ public class Juego extends InterfaceJuego {
             if (p != null && p.activo) {
                 if (!(princesa.abajo <= p.arriba || princesa.arriba >= p.abajo ||
                         princesa.derecha <= p.izquierda || princesa.izquierda >= p.derecha)) {
-                    // Dar vida extra
                     vidas++;
                     if (vidas > 6)
                         vidas = 6;
@@ -571,7 +565,6 @@ public class Juego extends InterfaceJuego {
     }
 
     public void generarPocion(double x, double y) {
-        // Buscar espacio libre en el array de pociones
         for (int i = 0; i < pociones.length; i++) {
             if (pociones[i] == null) {
                 pociones[i] = new PocionVida(x, y, this.entorno);
@@ -605,9 +598,10 @@ public class Juego extends InterfaceJuego {
         this.reapareciendo = false;
         this.primeraVez = true;
         this.fondo.x = this.entorno.ancho() / 2.0;
-        this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150; // Restaurar posición inicial del fondo
+        this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150;
+        this.enemigosEliminados = 0;
+        this.tiempoExplosion = 0;
 
-        // Limpiar pociones
         for (int i = 0; i < pociones.length; i++) {
             pociones[i] = null;
         }
@@ -623,9 +617,9 @@ public class Juego extends InterfaceJuego {
         for (int i = 0; i < 10; i++) {
             double separacion;
             if (i == 0) {
-                separacion = 250 + Math.random() * 80; // Primera isla más cerca (250-330)
+                separacion = 250 + Math.random() * 80;
             } else {
-                separacion = 560 + Math.random() * 50; // Después separación normal
+                separacion = 560 + Math.random() * 50;
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
@@ -645,7 +639,6 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                // double yPos = 350 + (Math.random() * 50 - 25);
                 this.islas[1][i] = new Isla(xPos, 340, this.entorno, 2);
                 acumuladorX = xPos;
                 ultimaXMediana = xPos;
@@ -662,7 +655,6 @@ public class Juego extends InterfaceJuego {
             }
             double xPos = acumuladorX + separacion;
             if (xPos < anchoTotalMapa - 400) {
-                // double yPos = 200 + (Math.random() * 50 - 25);
                 this.islas[0][i] = new Isla(xPos, 120, this.entorno, 3);
                 acumuladorX = xPos;
             }
@@ -712,7 +704,6 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // Dibujar pociones
         for (PocionVida p : pociones) {
             if (p != null && p.activo) {
                 p.dibujar(this.entorno);
@@ -741,7 +732,6 @@ public class Juego extends InterfaceJuego {
         }
         this.entorno.cambiarFont("Arial", 14, Color.BLACK);
         this.entorno.escribirTexto("Tiempo para explosion: " + this.tiempoExplosion, 620, 100);
-        // Mostrar contador de enemigos para la próxima poción
         this.entorno.cambiarFont("Arial", 14, Color.WHITE);
         this.entorno.escribirTexto("Próxima poción: " + (enemigosParaItem - enemigosEliminados) + " enemigos", 20, 100);
     }
@@ -765,7 +755,6 @@ public class Juego extends InterfaceJuego {
                 castillo.actualizarColisiones();
             }
 
-            // Mover pociones también
             for (PocionVida p : pociones) {
                 if (p != null) {
                     p.x -= this.velocidad;
@@ -773,7 +762,6 @@ public class Juego extends InterfaceJuego {
                 }
             }
 
-            // Mover enemigos también
             for (Enemigo e : enemigos) {
                 if (e != null && e.activo) {
                     e.x -= this.velocidad;
@@ -781,20 +769,15 @@ public class Juego extends InterfaceJuego {
                 }
             }
 
-            // Mover enemigos2 también
             for (Enemigo2 e2 : enemigos2) {
                 if (e2 != null && e2.activo) {
                     e2.x -= this.velocidad;
-                    e2.yBase -= 0; // yBase no se desplaza verticalmente con el nivel
                     e2.actualizarColisiones();
                 }
             }
         }
     }
 
-    // Verifica si una posición Y candidata está demasiado cerca (en vertical)
-    // de algún enemigo activo (tipo 1 o tipo 2). Se usa al spawnear para evitar
-    // superposiciones.
     public boolean hayColisionAlSpawn(double yCandidato, double separacionMinima) {
         for (Enemigo e : enemigos) {
             if (e != null && e.activo) {

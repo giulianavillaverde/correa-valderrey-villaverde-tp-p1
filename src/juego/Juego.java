@@ -419,9 +419,9 @@ public class Juego extends InterfaceJuego {
             }
         }
 
-        // EXPLOSIÓN (solo si no está en pelea con el jefe)
+        // EXPLOSIÓN
         if (this.entorno.sePresionoBoton(this.entorno.BOTON_DERECHO)
-                && this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0 && !enPeleaJefe) {
+                && this.explosion == null && !juegoTerminado && this.tiempoExplosion <= 0) {
             this.explosion = new ExplosionPrincesa(this.princesa.x, this.princesa.y, entorno);
             this.tiempoExplosion = 5;
         }
@@ -467,20 +467,20 @@ public class Juego extends InterfaceJuego {
         // CAÍDA AL VACÍO
         if (this.princesa.y > this.entorno.alto() + 100) {
             vidas--;
+            mensajeVidas = "¡PERDISTE UNA VIDA!";
             actualizarCorazones();
             iniciarReaparicion();
         }
 
         // ==================== PELEA CON EL JEFE FINAL ====================
         // Activar pelea al tocar el castillo
-        if (!enPeleaJefe && castillo != null && castillo.activo) {
-            if (!(princesa.abajo <= castillo.arriba || princesa.arriba >= castillo.abajo ||
-                    princesa.derecha <= castillo.izquierda || princesa.izquierda >= castillo.derecha)) {
-                enPeleaJefe = true;
-                double posX = castillo.x;
-                double posY = castillo.y;
-                castillo.activo = false;
-                jefe = new JefeFinal(posX, posY, this.entorno, this.vidas);
+        if (!this.enPeleaJefe && this.castillo != null && this.castillo.activo) {
+            if (!(this.princesa.abajo <= this.castillo.arriba || this.princesa.arriba >= this.castillo.abajo ||
+            		this.princesa.derecha <= this.castillo.izquierda || this.princesa.izquierda >= this.castillo.derecha)) {
+            	iniciarPeleaJefe(this.castillo, this.jefe, this.enemigos, this.enemigos2, this.fondo, this.islas);
+        		double posX = this.castillo.x + 100;
+                double posY = this.castillo.y;
+            	this.jefe = new JefeFinal(posX, posY, this.entorno, this.vidas);
             }
         }
 
@@ -540,8 +540,8 @@ public class Juego extends InterfaceJuego {
 
         dibujarTodo();
     }
-    
-    // Metodo Colisión de la princesa con islas
+
+	// Metodo Colisión de la princesa con islas
     public void colisionPrincesa(Princesa p, Isla[][] i) {
     	boolean enIsla = false;
 		for (Isla[] fila : i) {
@@ -624,6 +624,7 @@ public class Juego extends InterfaceJuego {
                         p.derecha <= pj[i].izquierda || p.izquierda >= pj[i].derecha)) {
                     pj[i] = null;
                     vidas--;
+                    mensajeVidas = "¡PERDISTE DOS VIDAS!";
                     actualizarCorazones();
                     iniciarReaparicion();
                     if (vidas <= 0) {
@@ -764,6 +765,8 @@ public class Juego extends InterfaceJuego {
         this.menuActivo = false;
         this.fondo.x = this.entorno.ancho() / 2.0;
         this.fondo.x += this.fondo.imagenFondo.getHeight(null) - 150;
+        this.fondo.escala = 1.5;
+        this.fondo.imagenFondo = Herramientas.cargarImagen("juego/fondonuevo.png");
         this.enemigosEliminados = 0;
         this.tiempoExplosion = 0;
         this.enPeleaJefe = false;
@@ -828,6 +831,17 @@ public class Juego extends InterfaceJuego {
                 acumuladorX = xPos;
             }
         }
+        
+        for(Isla[] fila: islas) for(Isla isla: fila) {
+    		if(isla != null && isla.tipo == 1) {
+    			isla.imagen = Herramientas.cargarImagen("juego/islaGrande.png");
+    		} else if (isla != null && isla.tipo == 2) {
+    			isla.imagen = Herramientas.cargarImagen("juego/islaMediana.png");
+    		} else if (isla != null){
+    			isla.imagen = Herramientas.cargarImagen("juego/islaChica.png");
+    		}
+    		
+    	}
 
         double posicionCastillo = ultimaXMediana;
         if (posicionCastillo > anchoTotalMapa - 150) {
@@ -1045,7 +1059,35 @@ public class Juego extends InterfaceJuego {
             }
         }
     }
-
+    
+    // Metodo que cambia fondo islas y quita enemigos para el boss
+    private void iniciarPeleaJefe(Castillo c, JefeFinal j, Enemigo[] e, Enemigo2[] e2, Fondo f, Isla[][] i) {
+    	enPeleaJefe = true;
+        c.activo = false;
+        for(Enemigo en: e) {
+    		if (en != null) en.activo = false;
+    	}
+    	for(Enemigo2 en: e2) {
+    		if (en != null) en.activo = false;
+    	}
+    	for(Isla[] fila: i) for(Isla isla: fila) {
+    		if(isla != null && isla.tipo == 1) {
+    			isla.imagen = Herramientas.cargarImagen("juego/islaGrandeCastillo.png");
+    		} else if (isla != null && isla.tipo == 2) {
+    			isla.imagen = Herramientas.cargarImagen("juego/islaMedianaCastillo.png");
+    		} else if (isla != null){
+    			isla.imagen = Herramientas.cargarImagen("juego/islaChicaCastillo.png");
+    		}
+    		
+    	}
+    	mensajeVidas = "¡BATALLA FINAL!";
+    	iniciarReaparicion();
+		f.imagenFondo = Herramientas.cargarImagen("juego/fondoCastillo.png");
+		f.escala = 2.1;
+		f.y = this.entorno.alto() / 2;
+		f.x = this.entorno.ancho() / 2 + 150;
+	}
+    
     public boolean hayColisionAlSpawn(double xCandidato, double yCandidato, double separacionMinima) {
         for (Enemigo e : enemigos) {
             if (e != null && e.activo) {

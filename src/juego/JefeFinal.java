@@ -26,7 +26,7 @@ public class JefeFinal {
         this.vidasMaximas = vidasPrincesa;
         this.vidas = this.vidasMaximas;
         this.activo = true;
-        this.contadorAtaque = 0;
+        this.contadorAtaque = 100;
         this.intervaloAtaque = 120; // Tiempo de disparo hacia la princesa
         
         this.imagen = Herramientas.cargarImagen("juego/JefeFinal.png");

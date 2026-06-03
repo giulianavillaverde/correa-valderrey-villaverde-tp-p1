@@ -5,14 +5,14 @@ import entorno.Entorno;
 import entorno.Herramientas;
 
 public class ProyectilJefe {
-    double x, y;
+    double x, y, rotacion;
     double velocidadX, velocidadY;
     double ancho, alto;
     boolean activo;
     int anchoPantalla, altoPantalla;
     double arriba, abajo, izquierda, derecha;
     Image imagen;
-    double escala = 0.08;
+    double escala = 0.1;
     
     public ProyectilJefe(double xInicial, double yInicial, double targetX, double targetY, int anchoPantalla, int altoPantalla) {
         this.x = xInicial;
@@ -26,6 +26,7 @@ public class ProyectilJefe {
         double dx = targetX - xInicial;
         double dy = targetY - yInicial;
         double distancia = Math.sqrt(dx * dx + dy * dy);
+        
         
         if (distancia > 0) {
             this.velocidadX = (dx / distancia) * 6;
@@ -42,7 +43,7 @@ public class ProyectilJefe {
             this.ancho = 15;
             this.alto = 15;
         }
-        
+        this.rotacion = Math.atan2(dy, dx);
         actualizarColisiones();
     }
     
@@ -53,8 +54,8 @@ public class ProyectilJefe {
     }
     
     public void dibujar(Entorno e) {
-        if (activo && imagen != null) {
-            e.dibujarImagen(imagen, x, y, 0, this.escala);
+        if (this.activo && this.imagen != null) {
+            e.dibujarImagen(this.imagen, this.x, this.y, this.rotacion, this.escala);
         }
     }
     

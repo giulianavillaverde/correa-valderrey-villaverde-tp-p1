@@ -32,7 +32,7 @@ public class Enemigo2 {
         this.frecuenciaOndulacion = 0.06; // qué tan rápido oscila
         this.tickContador = 0;
 
-        if (this.velocidad > 1) {
+        if (this.velocidad > 0) {
             this.imagen = Herramientas.cargarImagen("juego/enemigoDer2.gif");
         } else {
             this.imagen = Herramientas.cargarImagen("juego/enemigoIzq2.gif");

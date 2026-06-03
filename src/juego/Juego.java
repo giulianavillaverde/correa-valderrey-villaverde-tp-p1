@@ -256,64 +256,15 @@ public class Juego extends InterfaceJuego {
         // Salto
         if (this.entorno.sePresiono(this.entorno.TECLA_ARRIBA) || this.entorno.sePresiono('w')) {
             if (!this.princesa.salto && !this.princesa.caida) {
-                this.princesa.salto = true;
-                this.princesa.ciclos = 0;
-                this.princesa.velocidadY = -12;
+                this.princesa.iniciarSalto();
             }
         }
 
         // Gravedad
-        if (!this.princesa.salto) {
-            this.princesa.velocidadY += 0.8;
-        }
-
-        this.princesa.y += this.princesa.velocidadY;
-        this.princesa.actualColis();
-
-        if (this.princesa.salto) {
-            this.princesa.ciclos++;
-            if (this.princesa.ciclos > 20 || this.princesa.arriba <= 90) {
-                this.princesa.salto = false;
-            }
-        }
+        this.princesa.movVertical();
 
         // Colisión de la princesa con islas
-        boolean enIsla = false;
-        for (Isla[] fila : this.islas) {
-            for (Isla isla : fila) {
-                if (isla != null) {
-                    boolean colisionHorizontal = this.princesa.derecha > isla.izquierda
-                            && this.princesa.izquierda < isla.derecha;
-
-                    double distanciaVertical = Math.abs(this.princesa.abajo - isla.arriba);
-
-                    if (distanciaVertical < 15 && colisionHorizontal && this.princesa.velocidadY >= 0) {
-                        this.princesa.y = isla.arriba - this.princesa.alto / 2;
-                        this.princesa.velocidadY = 0;
-                        this.princesa.salto = false;
-                        this.princesa.caida = false;
-                        this.princesa.actualColis();
-                        enIsla = true;
-                        break;
-                    }
-
-                    distanciaVertical = Math.abs(this.princesa.arriba - isla.abajo);
-                    if (distanciaVertical < 15 && colisionHorizontal && this.princesa.velocidadY < 0) {
-                        this.princesa.y = isla.abajo + this.princesa.alto / 2;
-                        this.princesa.velocidadY = 0;
-                        this.princesa.salto = false;
-                        this.princesa.ciclos = 0;
-                        this.princesa.actualColis();
-                    }
-                }
-            }
-            if (enIsla)
-                break;
-        }
-
-        if (!enIsla) {
-            this.princesa.caida = true;
-        }
+        colisionPrincesa(this.princesa, this.islas);
 
         // ENEMIGOS tipo 1
         for (int i = 0; i < enemigos.length; i++) {
@@ -481,113 +432,21 @@ public class Juego extends InterfaceJuego {
 
         if (this.explosion != null) {
             this.explosion.mover(this.princesa.x, this.princesa.y);
-
-            for (int i = 0; i < enemigos.length; i++) {
-                Enemigo e = enemigos[i];
-                if (e != null && e.activo) {
-                    if (!(this.explosion.abajo <= e.arriba || this.explosion.arriba >= e.abajo ||
-                            this.explosion.derecha <= e.izquierda || this.explosion.izquierda >= e.derecha)) {
-                        enemigos[i] = null;
-                        enemigosEliminados++;
-
-                        if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
-                            enemigosEliminados = 0;
-                        }
-                        break;
-                    }
-                }
-            }
-            for (int i = 0; i < enemigos2.length; i++) {
-                Enemigo2 e2 = enemigos2[i];
-                if (e2 != null && e2.activo) {
-                    if (!(this.explosion.abajo <= e2.arriba || this.explosion.arriba >= e2.abajo ||
-                            this.explosion.derecha <= e2.izquierda || this.explosion.izquierda >= e2.derecha)) {
-                        enemigos2[i] = null;
-                        enemigosEliminados++;
-                        if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
-                            enemigosEliminados = 0;
-                        }
-                        break;
-                    }
-                }
-            }
+            colisionExplosio(this.explosion, this.enemigos, this.enemigos2, this.princesa);
             if (this.explosion.fin) {
                 this.explosion = null;
             }
         }
 
-        // evaluacion de daños recibidos (colisiones con enemigos tipo 1)
-        for (int i = 0; i < enemigos.length; i++) {
-            Enemigo e = enemigos[i];
-            if (e != null && e.activo) {
-                if (!(princesa.abajo <= e.arriba || princesa.arriba >= e.abajo ||
-                        princesa.derecha <= e.izquierda || princesa.izquierda >= e.derecha)) {
-                    vidas--;
-                    enemigos[i] = null;
-                    mensajeVidas = "¡PERDISTE UNA VIDA!";
-                    actualizarCorazones();
-                    iniciarReaparicion();
-                    break;
-                }
-            }
-        }
-
-        for (int i = 0; i < enemigos2.length; i++) {
-            Enemigo2 e2 = enemigos2[i];
-            if (e2 != null && e2.activo) {
-                if (!(princesa.abajo <= e2.arriba || princesa.arriba >= e2.abajo ||
-                        princesa.derecha <= e2.izquierda || princesa.izquierda >= e2.derecha)) {
-                    vidas -= e2.vidasQueQuita();
-                    if (vidas < 0)
-                        vidas = 0;
-                    enemigos2[i] = null;
-                    mensajeVidas = "¡PERDISTE DOS VIDAS!";
-                    actualizarCorazones();
-                    iniciarReaparicion();
-                    break;
-                }
-            }
-        }
+        // evaluacion de daños recibidos (colisiones con enemigos)
+        colisionPrincesa(this.princesa, this.enemigos);
+        
+        colisionPrincesa(this.princesa, this.enemigos2);
+        
 
         // colisiones de los proyectiles contra los enemigos tipo 1
-        if (proyectil != null && proyectil.activo) {
-            for (int i = 0; i < enemigos.length; i++) {
-                Enemigo e = enemigos[i];
-                if (e != null && e.activo) {
-                    if (!(proyectil.abajo <= e.arriba || proyectil.arriba >= e.abajo ||
-                            proyectil.derecha <= e.izquierda || proyectil.izquierda >= e.derecha)) {
-                        proyectil = null;
-                        enemigos[i] = null;
-                        enemigosEliminados++;
-                        if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
-                            enemigosEliminados = 0;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (proyectil != null && proyectil.activo) {
-            for (int i = 0; i < enemigos2.length; i++) {
-                Enemigo2 e2 = enemigos2[i];
-                if (e2 != null && e2.activo) {
-                    if (!(proyectil.abajo <= e2.arriba || proyectil.arriba >= e2.abajo ||
-                            proyectil.derecha <= e2.izquierda || proyectil.izquierda >= e2.derecha)) {
-                        proyectil = null;
-                        enemigos2[i] = null;
-                        enemigosEliminados++;
-                        if (enemigosEliminados >= enemigosParaItem) {
-                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
-                            enemigosEliminados = 0;
-                        }
-                        break;
-                    }
-                }
-            }
+        if (colisionProyectil(this.proyectil, this.enemigos, this.enemigos2, this.princesa)) {
+        	this.proyectil = null;
         }
 
         // recoleccion de las pociones de vida
@@ -657,32 +516,14 @@ public class Juego extends InterfaceJuego {
             }
 
             // Colisión proyectil del jefe - princesa
-            for (int i = 0; i < proyectilesJefe.length; i++) {
-                ProyectilJefe pj = proyectilesJefe[i];
-                if (pj != null && pj.activo) {
-                    if (!(princesa.abajo <= pj.arriba || princesa.arriba >= pj.abajo ||
-                            princesa.derecha <= pj.izquierda || princesa.izquierda >= pj.derecha)) {
-                        proyectilesJefe[i] = null;
-                        vidas--;
-                        actualizarCorazones();
-                        iniciarReaparicion();
-                        if (vidas <= 0) {
-                            this.juegoTerminado = true;
-                            this.victoria = false;
-                        }
-                        break;
-                    }
-                }
-            }
+            colisionPrincesa(this.princesa, this.proyectilesJefe);
+            
 
             // Colisión proyectil de la princesa - jefe
-            if (proyectil != null && proyectil.activo) {
-                if (!(proyectil.abajo <= jefe.arriba || proyectil.arriba >= jefe.abajo ||
-                        proyectil.derecha <= jefe.izquierda || proyectil.izquierda >= jefe.derecha)) {
-                    proyectil = null;
-                    jefe.recibirDanio();
-                }
+            if (colisionProyectil(this.proyectil, this.jefe)) {
+            	this.proyectil = null;
             }
+            
 
             // Si el jefe muere, ganar el juego
             if (!jefe.isActivo()) {
@@ -699,7 +540,180 @@ public class Juego extends InterfaceJuego {
 
         dibujarTodo();
     }
+    
+    // Metodo Colisión de la princesa con islas
+    public void colisionPrincesa(Princesa p, Isla[][] i) {
+    	boolean enIsla = false;
+		for (Isla[] fila : i) {
+            for (Isla isla : fila) {
+                if (isla != null) {
+                    boolean colisionHorizontal = p.derecha > isla.izquierda
+                            && p.izquierda < isla.derecha;
 
+                    double distanciaVertical = Math.abs(p.abajo - isla.arriba);
+
+                    if (distanciaVertical < 15 && colisionHorizontal && p.velocidadY >= 0) {
+                        p.y = isla.arriba - p.alto / 2;
+                        p.velocidadY = 0;
+                        p.salto = false;
+                        p.caida = false;
+                        p.actualColis();
+                        enIsla = true;
+                        break;
+                    }
+
+                    distanciaVertical = Math.abs(p.arriba - isla.abajo);
+                    if (distanciaVertical < 15 && colisionHorizontal && p.velocidadY < 0) {
+                        p.y = isla.abajo + p.alto / 2;
+                        p.velocidadY = 0;
+                        p.salto = false;
+                        p.ciclos = 0;
+                        p.actualColis();
+                    }
+                }
+            }
+            if (enIsla)
+                break;
+        }
+
+        if (!enIsla) {
+            p.caida = true;
+        }
+    }
+    
+    // Metodo colisiones con enemigos (evaluacion de daños recibidos)
+    public void colisionPrincesa(Princesa p, Enemigo[] e) {
+    	for (int i = 0; i < e.length; i++) {
+            if (e[i] != null && e[i].activo) {
+                if (!(p.abajo <= e[i].arriba || p.arriba >= e[i].abajo ||
+                        p.derecha <= e[i].izquierda || p.izquierda >= e[i].derecha)) {
+                    vidas--;
+                    e[i] = null;
+                    mensajeVidas = "¡PERDISTE UNA VIDA!";
+                    actualizarCorazones();
+                    iniciarReaparicion();
+                    return;
+                }
+            }
+        }
+    }
+    
+    public void colisionPrincesa(Princesa p, Enemigo2[] e) {
+    	for (int i = 0; i < e.length; i++) {
+            if (e[i] != null && e[i].activo) {
+                if (!(p.abajo <= e[i].arriba || p.arriba >= e[i].abajo ||
+                        p.derecha <= e[i].izquierda || p.izquierda >= e[i].derecha)) {
+                    vidas -= e[i].vidasQueQuita();
+                    if (vidas < 0)
+                        vidas = 0;
+                    enemigos2[i] = null;
+                    mensajeVidas = "¡PERDISTE DOS VIDAS!";
+                    actualizarCorazones();
+                    iniciarReaparicion();
+                    return;
+                }
+            }
+        }
+    }
+    
+    // Metodo Colisión proyectil del jefe - princesa
+    public void colisionPrincesa(Princesa p, ProyectilJefe[] pj) {
+    	for (int i = 0; i < pj.length; i++) {
+            if (pj[i] != null && pj[i].activo) {
+                if (!(p.abajo <= pj[i].arriba || p.arriba >= pj[i].abajo ||
+                        p.derecha <= pj[i].izquierda || p.izquierda >= pj[i].derecha)) {
+                    pj[i] = null;
+                    vidas--;
+                    actualizarCorazones();
+                    iniciarReaparicion();
+                    if (vidas <= 0) {
+                        this.juegoTerminado = true;
+                        this.victoria = false;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
+    // colisiones de los proyectiles contra los enemigos
+    public boolean colisionProyectil(ProyectilPrincesa p, Enemigo[] e, Enemigo2[] e2, Princesa pr) {
+    	if (p != null && p.activo) {
+            for (int i = 0; i < e.length; i++) {
+                if (e[i] != null && e[i].activo) {
+                    if (!(p.abajo <= e[i].arriba || p.arriba >= e[i].abajo ||
+                            p.derecha <= e[i].izquierda || p.izquierda >= e[i].derecha)) {
+                        e[i] = null;
+                        enemigosEliminados++;
+                        if (enemigosEliminados >= enemigosParaItem) {
+                            generarPocion(pr.x + 100, this.princesa.y - 50);
+                            enemigosEliminados = 0;
+                        }
+                        return true;
+                    }
+                }
+            }
+            for (int i = 0; i < e2.length; i++) {
+                if (e2[i] != null && e2[i] .activo) {
+					if (!(p.abajo <= e2[i] .arriba || p.arriba >= e2[i] .abajo ||
+                            p.derecha <= e2[i].izquierda || p.izquierda >= e2[i].derecha)) {
+                        e2[i] = null;
+                        enemigosEliminados++;
+                        if (enemigosEliminados >= enemigosParaItem) {
+                            generarPocion(this.princesa.x + 100, this.princesa.y - 50);
+                            enemigosEliminados = 0;
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+    	return false;
+    }
+    
+    // Metodo Colisión proyectil del jefe - princesa
+    public boolean colisionProyectil(ProyectilPrincesa p, JefeFinal j) {
+		if (p != null && p.activo) {
+			if (!(p.abajo <= j.arriba || p.arriba >= j.abajo ||
+                    p.derecha <= j.izquierda || p.izquierda >= j.derecha)) {
+                j.recibirDanio();
+                return true;
+            }
+        }
+		return false;
+    }
+    
+    public void colisionExplosio(ExplosionPrincesa ex, Enemigo[] e, Enemigo2[] e2, Princesa p) {
+		for (int i = 0; i < e.length; i++) {
+            if (e[i] != null && e[i].activo) {
+                if (!(ex.abajo <= e[i].arriba || ex.arriba >= e[i].abajo ||
+                        ex.derecha <= e[i].izquierda || ex.izquierda >= e[i].derecha)) {
+                    e[i] = null;
+                    enemigosEliminados++;
+                    if (enemigosEliminados >= enemigosParaItem) {
+                        generarPocion(p.x + 100, p.y - 50);
+                        enemigosEliminados = 0;
+                    }
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < enemigos2.length; i++) {
+            if (e2[i] != null && e2[i].activo) {
+                if (!(ex.abajo <= e2[i].arriba || ex.arriba >= e2[i].abajo ||
+                        ex.derecha <= e2[i].izquierda || ex.izquierda >= e2[i].derecha)) {
+                    e2[i] = null;
+                    enemigosEliminados++;
+                    if (enemigosEliminados >= enemigosParaItem) {
+                        generarPocion(p.x + 100, p.y - 50);
+                        enemigosEliminados = 0;
+                    }
+                    return;
+                }
+            }
+        }
+    }
+    
     public void iniciarPartida() {
         this.vidas = 6;
         this.juegoTerminado = false;
